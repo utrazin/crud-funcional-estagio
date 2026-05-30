@@ -17,5 +17,32 @@ model Product {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
+  sales Sale[]
+
   @@map("products")
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("customers")
+}
+
+model Sale {
+  id         String    @id @default(cuid())
+  productId  String
+  customerId String
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
+  createdAt  DateTime
+  deletedAt  DateTime?
+
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@map("sales")
 }

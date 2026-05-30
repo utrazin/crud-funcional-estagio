@@ -1,27 +1,25 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
 import productRoutes from './routes/products'
+import saleRoutes from './routes/sales'
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
-// Configure CORS to restrict to specific origins
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-  credentials: true,
-  optionsSuccessStatus: 200
-}
-
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(express.json())
 
+app.use(express.static(path.join(__dirname, '..', 'public')))
+
 app.use('/products', productRoutes)
+app.use('/sales', saleRoutes)
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
 app.listen(PORT, () => {
-  console.log(`Backend-initial rodando na porta ${PORT}`)
+  console.log(`Servidor rodando em http://localhost:${PORT}`)
 })

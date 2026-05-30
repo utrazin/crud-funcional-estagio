@@ -3,7 +3,6 @@ import { prisma } from '../prisma'
 
 const router = Router()
 
-// Listar produtos (ignora soft deleted)
 router.get('/', async (_req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany({
@@ -16,7 +15,17 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 })
 
-// Buscar produto por ID
+router.get('/all', async (_req: Request, res: Response) => {
+  try {
+    const products = await prisma.product.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+    res.json(products)
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao listar produtos' })
+  }
+})
+
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const product = await prisma.product.findUnique({
@@ -31,7 +40,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 })
 
-// Criar produto
 router.post('/', async (req: Request, res: Response) => {
   try {
     const { name, price, stockQuantity, description } = req.body
@@ -61,7 +69,6 @@ router.post('/', async (req: Request, res: Response) => {
   }
 })
 
-// Atualizar produto
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.product.findUnique({
@@ -102,7 +109,6 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 })
 
-// Excluir produto (soft delete)
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.product.findUnique({

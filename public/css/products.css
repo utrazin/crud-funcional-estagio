@@ -1,0 +1,24 @@
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-green {
+  background-color: #d5f5e3;
+  color: #1e8449;
+}
+
+.badge-red {
+  background-color: #fadbd8;
+  color: #922b21;
+}
+
+/* Coluna de ações na tabela de produtos */
+#products-tbody td:last-child {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
