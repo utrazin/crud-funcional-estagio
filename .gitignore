@@ -1,36 +1,12 @@
-# Environment variables
-.env
-.env.local
-.env.*.local
+# Cada subprojeto tem seu próprio .gitignore
+# Este arquivo cobre apenas a raiz do repositório
 
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-
-# Build output
-dist/
-build/
-*.tsbuildinfo
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-.DS_Store
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Prisma
-prisma/migrations/
-.prisma/
-
-# OS
-Thumbs.db
