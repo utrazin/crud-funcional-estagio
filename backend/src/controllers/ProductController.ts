@@ -62,7 +62,7 @@ export class ProductController {
     })
   }
 
-  async atualizar(id: string, dados: { name?: string; price?: number; stockQuantity?: number; description?: string }) {
+  async atualizar(id: string, name: string, price: number, stockQuantity: number, description: string) {
     const existing = await this.productRepository.findUnique({ where: { id } })
 
     if (!existing) {
@@ -72,23 +72,49 @@ export class ProductController {
       throw new Error('Produto não está disponível')
     }
 
-    if (dados.name !== undefined && (!dados.name || !dados.name.trim())) {
+    if (!name || !name.trim()) {
       throw new Error('Nome é obrigatório')
     }
-    if (dados.price !== undefined && (typeof dados.price !== 'number' || dados.price <= 0)) {
+    if (typeof price !== 'number' || price <= 0) {
       throw new Error('Preço deve ser maior que zero')
     }
-    if (dados.stockQuantity !== undefined && (typeof dados.stockQuantity !== 'number' || dados.stockQuantity < 0)) {
+    if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
       throw new Error('Quantidade deve ser maior ou igual a zero')
     }
 
     return this.productRepository.update({
       where: { id },
       data: {
-        ...(dados.name !== undefined && { name: dados.name.trim() }),
-        ...(dados.price !== undefined && { price: dados.price }),
-        ...(dados.stockQuantity !== undefined && { stockQuantity: dados.stockQuantity }),
-        ...(dados.description !== undefined && { description: dados.description?.trim() || null }),
+        name: name.trim(),
+        price,
+        stockQuantity,
+        description: description?.trim() || null,
+      },
+    })
+  }
+
+  // Métodos internos usados pelo SaleController
+
+  async buscarPorId(id: string) {
+    return this.productRepository.findUnique({ where: { id } })
+  }
+
+  async decrementarEstoque(id: string, quantidade: number) {
+    return this.productRepository.update({
+      where: { id },
+      data: {
+        stockQuantity: { decrement: quantidade },
+        salesCount: { increment: quantidade },
+      },
+    })
+  }
+
+  async incrementarEstoque(id: string, quantidade: number) {
+    return this.productRepository.update({
+      where: { id },
+      data: {
+        stockQuantity: { increment: quantidade },
+        salesCount: { decrement: quantidade },
       },
     })
   }

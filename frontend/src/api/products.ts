@@ -10,7 +10,7 @@ export const productsApi = {
   criar: (data: { name: string; price: number; stockQuantity: number; description?: string }) =>
     api.post<Product>('/products', data),
 
-  atualizar: (id: string, data: { name?: string; price?: number; stockQuantity?: number; description?: string }) =>
+  atualizar: (id: string, data: { name: string; price: number; stockQuantity: number; description: string }) =>
     api.put<Product>(`/products/${id}`, data),
 
   excluir: (id: string) => api.delete(`/products/${id}`),

@@ -12,6 +12,7 @@ interface SaleFormProps {
   clientSearch: string
   productSearch: string
   products: Product[]
+  editing: boolean
   onProductSearch: (value: string) => void
   onProductSelect: (product: Product | null) => void
   onClientSearch: (term: string) => void
@@ -20,6 +21,7 @@ interface SaleFormProps {
   onUnitPriceChange: (price: number) => void
   onSaleDateChange: (date: string) => void
   onSubmit: (e: React.FormEvent) => void
+  onCancelEdit: () => void
   loading: boolean
 }
 
@@ -34,6 +36,7 @@ export function SaleForm({
   clientSearch,
   productSearch,
   products,
+  editing,
   onProductSearch,
   onProductSelect,
   onClientSearch,
@@ -42,6 +45,7 @@ export function SaleForm({
   onUnitPriceChange,
   onSaleDateChange,
   onSubmit,
+  onCancelEdit,
   loading,
 }: SaleFormProps) {
   const filteredProducts = productSearch
@@ -50,7 +54,7 @@ export function SaleForm({
 
   return (
     <div className="card">
-      <h2>Registrar Venda</h2>
+      <h2>{editing ? 'Editar Venda' : 'Registrar Venda'}</h2>
       <form onSubmit={onSubmit}>
         <div className="form-row">
 
@@ -152,9 +156,16 @@ export function SaleForm({
               R$ {totalPrice.toFixed(2)}
             </span>
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            Registrar Venda
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {editing ? 'Salvar' : 'Registrar Venda'}
+            </button>
+            {editing && (
+              <button type="button" className="btn btn-secondary" onClick={onCancelEdit}>
+                Cancelar
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

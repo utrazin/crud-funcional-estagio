@@ -19,6 +19,7 @@ export interface Sale {
   totalPrice: number
   saleDate: string
   createdAt: string
+  updatedAt: string | null
   deletedAt: string | null
   product: {
     id: string

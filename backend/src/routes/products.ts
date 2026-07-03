@@ -41,7 +41,8 @@ router.post('/', async (req: Request, res: Response) => {
 // Atualizar produto
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const product = await controller.atualizar(req.params.id, req.body)
+    const { name, price, stockQuantity, description } = req.body
+    const product = await controller.atualizar(req.params.id, name, price, stockQuantity, description)
     res.json(product)
   } catch (err: any) {
     const status = err.message.includes('não encontrado') ? 404

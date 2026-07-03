@@ -3,7 +3,7 @@ import type { Product } from '../../types'
 
 interface ProductFormProps {
   editing: Product | null
-  onSubmit: (data: { name: string; price: number; stockQuantity: number; description?: string }) => Promise<void>
+  onSubmit: (data: { name: string; price: number; stockQuantity: number; description: string }) => Promise<void>
   onCancel: () => void
 }
 
@@ -36,7 +36,7 @@ export function ProductForm({ editing, onSubmit, onCancel }: ProductFormProps) {
         name,
         price: parseFloat(price),
         stockQuantity: parseInt(stockQuantity),
-        description: description || undefined,
+        description: description,
       })
     } finally {
       setLoading(false)

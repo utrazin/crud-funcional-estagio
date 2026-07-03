@@ -19,36 +19,50 @@ export function SaleView() {
 
   const form = useSaleForm()
 
-  async function registrar(e: React.FormEvent) {
+  function editar(sale: Sale) {
+    const clientName = findClientById(sale.clientId)?.name ?? sale.clientId
+    const productName = sale.product?.name ?? ''
+    form.preencherParaEdicao(
+      { id: sale.id, productId: sale.productId, clientId: sale.clientId, quantity: sale.quantity, unitPrice: sale.unitPrice, saleDate: sale.saleDate },
+      productName,
+      clientName,
+    )
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!form.selectedProduct) {
-      showError('Selecione um produto.')
-      return
-    }
-    if (!form.selectedClient) {
-      showError('Selecione um cliente.')
-      return
-    }
-    if (!form.unitPrice || form.unitPrice <= 0) {
-      showError('Valor unitário deve ser maior que zero.')
-      return
-    }
-    if (form.selectedProduct && form.quantity > form.selectedProduct.stockQuantity) {
+    if (!form.selectedProduct) { showError('Selecione um produto.'); return }
+    if (!form.selectedClient) { showError('Selecione um cliente.'); return }
+    if (!form.unitPrice || form.unitPrice <= 0) { showError('Valor unitário deve ser maior que zero.'); return }
+
+    if (!form.editingId && form.selectedProduct && form.quantity > form.selectedProduct.stockQuantity) {
       showError(`Estoque insuficiente (disponível: ${form.selectedProduct.stockQuantity}).`)
       return
     }
 
     setSubmitting(true)
     try {
-      await salesApi.registrar({
-        productId: form.selectedProduct.id,
-        clientId: form.selectedClient.id,
-        quantity: form.quantity,
-        salePrice: form.unitPrice,
-        saleDate: form.saleDate,
-      })
-      showSuccess('Venda registrada com sucesso!')
+      if (form.editingId) {
+        await salesApi.atualizar(form.editingId, {
+          productId: form.selectedProduct.id,
+          clientId: form.selectedClient.id,
+          quantity: form.quantity,
+          salePrice: form.unitPrice,
+          saleDate: form.saleDate,
+        })
+        showSuccess('Venda atualizada com sucesso!')
+      } else {
+        await salesApi.registrar({
+          productId: form.selectedProduct.id,
+          clientId: form.selectedClient.id,
+          quantity: form.quantity,
+          salePrice: form.unitPrice,
+          saleDate: form.saleDate,
+        })
+        showSuccess('Venda registrada com sucesso!')
+      }
       form.resetForm()
       reload()
     } catch (err: any) {
@@ -111,6 +125,7 @@ export function SaleView() {
         clientSearch={form.clientSearch}
         productSearch={form.productSearch}
         products={form.products}
+        editing={!!form.editingId}
         onProductSearch={(value) => {
           form.setProductSearch(value)
           if (!value) form.selecionarProduto(null)
@@ -121,7 +136,8 @@ export function SaleView() {
         onQuantityChange={form.alterarQuantidade}
         onUnitPriceChange={form.setUnitPrice}
         onSaleDateChange={form.setSaleDate}
-        onSubmit={registrar}
+        onSubmit={handleSubmit}
+        onCancelEdit={form.resetForm}
         loading={submitting}
       />
 
@@ -182,7 +198,10 @@ export function SaleView() {
                   <td>{s.quantity}</td>
                   <td>R$ {s.unitPrice.toFixed(2)}</td>
                   <td>R$ {s.totalPrice.toFixed(2)}</td>
-                  <td>
+                  <td style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <button className="btn btn-warning" onClick={() => editar(s)}>
+                      Editar
+                    </button>
                     <button className="btn btn-danger" onClick={() => cancelar(s)}>
                       Cancelar
                     </button>

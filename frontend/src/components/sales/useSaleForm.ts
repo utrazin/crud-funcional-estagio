@@ -18,6 +18,7 @@ export function useSaleForm() {
   const [clientSearch, setClientSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [products, setProducts] = useState<Product[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   const totalPrice = quantity * unitPrice
 
@@ -34,6 +35,7 @@ export function useSaleForm() {
     setSaleDate(todayISO())
     setClientSearch('')
     setProductSearch('')
+    setEditingId(null)
   }
 
   function buscarClientes(term: string) {
@@ -57,6 +59,20 @@ export function useSaleForm() {
     setQuantity(qty)
   }
 
+  function preencherParaEdicao(sale: { id: string; productId: string; clientId: string; quantity: number; unitPrice: number; saleDate: string }, productName: string, clientName: string) {
+    const product = products.find((p) => p.id === sale.productId) ?? null
+    setSelectedProduct(product)
+    setProductSearch(productName)
+    setUnitPrice(sale.unitPrice)
+    setQuantity(sale.quantity)
+    setSaleDate(sale.saleDate.substring(0, 10))
+    setClientSearch(clientName)
+    // Mock client — monta objeto mínimo para exibição
+    setSelectedClient({ id: sale.clientId, name: clientName })
+    setClientList([])
+    setEditingId(sale.id)
+  }
+
   return {
     selectedProduct,
     selectedClient,
@@ -68,6 +84,7 @@ export function useSaleForm() {
     clientSearch,
     productSearch,
     products,
+    editingId,
     setUnitPrice,
     setSaleDate,
     setProductSearch,
@@ -75,6 +92,7 @@ export function useSaleForm() {
     selecionarProduto,
     selecionarCliente,
     alterarQuantidade,
+    preencherParaEdicao,
     resetForm,
   }
 }

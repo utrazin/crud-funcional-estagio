@@ -29,7 +29,7 @@ export function ProductView() {
     }
   }
 
-  async function editar(data: { name: string; price: number; stockQuantity: number; description?: string }) {
+  async function editar(data: { name: string; price: number; stockQuantity: number; description: string }) {
     if (!selectedProduct) return
     try {
       await productsApi.atualizar(selectedProduct.id, data)
@@ -42,7 +42,7 @@ export function ProductView() {
     }
   }
 
-  async function handleSubmit(data: { name: string; price: number; stockQuantity: number; description?: string }) {
+  async function handleSubmit(data: { name: string; price: number; stockQuantity: number; description: string }) {
     if (selectedProduct) {
       await editar(data)
     } else {

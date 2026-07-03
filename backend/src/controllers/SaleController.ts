@@ -1,8 +1,10 @@
 import { prisma } from '../prisma'
+import { ProductController } from './ProductController'
 import { MOCK_CLIENTS, findClientById } from '../mocks/clients'
 
 export class SaleController {
   private saleRepository = prisma.sale
+  private productService = new ProductController()
 
   async listar() {
     return this.saleRepository.findMany({
@@ -32,7 +34,7 @@ export class SaleController {
 
     const lower = term.toLowerCase()
     const matchingClientIds = MOCK_CLIENTS
-      .filter((c) => c.name.toLowerCase().includes(lower) || c.cellphone.includes(term))
+      .filter((c) => c.name.toLowerCase().includes(lower) || (c.cellphone && c.cellphone.includes(term)))
       .map((c) => c.id)
 
     const byClient = matchingClientIds.length > 0
@@ -67,7 +69,7 @@ export class SaleController {
 
     if (!findClientById(clientId)) throw new Error('Cliente não encontrado')
 
-    const product = await prisma.product.findUnique({ where: { id: productId } })
+    const product = await this.productService.buscarPorId(productId)
     if (!product || product.deletedAt) throw new Error('Produto não encontrado')
     if (product.stockQuantity < quantity) throw new Error('Estoque insuficiente')
     if (salePrice < product.price) {
@@ -80,13 +82,7 @@ export class SaleController {
       data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate) },
     })
 
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        stockQuantity: product.stockQuantity - quantity,
-        salesCount: product.salesCount + quantity,
-      },
-    })
+    await this.productService.decrementarEstoque(productId, quantity)
 
     return sale
   }
@@ -101,16 +97,7 @@ export class SaleController {
       data: { deletedAt: new Date() },
     })
 
-    const product = await prisma.product.findUnique({ where: { id: sale.productId } })
-    if (product) {
-      await prisma.product.update({
-        where: { id: sale.productId },
-        data: {
-          stockQuantity: product.stockQuantity + sale.quantity,
-          salesCount: Math.max(0, product.salesCount - sale.quantity),
-        },
-      })
-    }
+    await this.productService.incrementarEstoque(sale.productId, sale.quantity)
   }
 
   async atualizar(
@@ -127,18 +114,10 @@ export class SaleController {
 
     if (!findClientById(clientId)) throw new Error('Cliente não encontrado')
 
-    const oldProduct = await prisma.product.findUnique({ where: { id: sale.productId } })
-    if (oldProduct) {
-      await prisma.product.update({
-        where: { id: sale.productId },
-        data: {
-          stockQuantity: oldProduct.stockQuantity + sale.quantity,
-          salesCount: Math.max(0, oldProduct.salesCount - sale.quantity),
-        },
-      })
-    }
+    // Reverte estoque da venda antiga
+    await this.productService.incrementarEstoque(sale.productId, sale.quantity)
 
-    const newProduct = await prisma.product.findUnique({ where: { id: productId } })
+    const newProduct = await this.productService.buscarPorId(productId)
     if (!newProduct || newProduct.deletedAt) throw new Error('Produto não encontrado')
     if (newProduct.stockQuantity < quantity) throw new Error('Estoque insuficiente')
     if (salePrice < newProduct.price) {
@@ -152,13 +131,7 @@ export class SaleController {
       data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate) },
     })
 
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        stockQuantity: newProduct.stockQuantity - quantity,
-        salesCount: newProduct.salesCount + quantity,
-      },
-    })
+    await this.productService.decrementarEstoque(productId, quantity)
 
     return updatedSale
   }

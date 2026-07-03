@@ -15,7 +15,9 @@
 
 .sale-form-footer {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
   margin-top: 12px;
+  gap: 16px;
 }

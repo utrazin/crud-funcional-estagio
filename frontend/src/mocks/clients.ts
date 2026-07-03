@@ -1,7 +1,7 @@
 export interface MockClient {
   id: string
   name: string
-  cellphone: string
+  cellphone?: string
 }
 
 export const MOCK_CLIENTS: MockClient[] = [
@@ -22,6 +22,6 @@ export function searchClients(term: string): MockClient[] {
   return MOCK_CLIENTS.filter(
     (c) =>
       c.name.toLowerCase().includes(lower) ||
-      c.cellphone.includes(term),
+      (c.cellphone && c.cellphone.includes(term)),
   )
 }
