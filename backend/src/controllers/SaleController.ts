@@ -79,7 +79,7 @@ export class SaleController {
     const totalPrice = this.calcularValorTotal(quantity, salePrice)
 
     const sale = await this.saleRepository.create({
-      data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate) },
+      data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate), updatedAt: new Date() },
     })
 
     await this.productService.decrementarEstoque(productId, quantity)
@@ -128,7 +128,7 @@ export class SaleController {
 
     const updatedSale = await this.saleRepository.update({
       where: { id },
-      data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate) },
+      data: { productId, clientId, quantity, unitPrice: salePrice, totalPrice, saleDate: new Date(saleDate), updatedAt: new Date() },
     })
 
     await this.productService.decrementarEstoque(productId, quantity)

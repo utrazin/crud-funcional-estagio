@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Product } from '../../types'
 import type { MockClient } from '../../mocks/clients'
-import { searchClients } from '../../mocks/clients'
+import { searchClients, MOCK_CLIENTS } from '../../mocks/clients'
 import { productsApi } from '../../api/products'
 
 function todayISO() {
@@ -11,7 +11,7 @@ function todayISO() {
 export function useSaleForm() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedClient, setSelectedClient] = useState<MockClient | null>(null)
-  const [clientList, setClientList] = useState<MockClient[]>([])
+  const [clientList, setClientList] = useState<MockClient[]>(MOCK_CLIENTS)
   const [quantity, setQuantity] = useState(1)
   const [unitPrice, setUnitPrice] = useState(0)
   const [saleDate, setSaleDate] = useState(todayISO())
@@ -29,7 +29,7 @@ export function useSaleForm() {
   function resetForm() {
     setSelectedProduct(null)
     setSelectedClient(null)
-    setClientList([])
+    setClientList(MOCK_CLIENTS)
     setQuantity(1)
     setUnitPrice(0)
     setSaleDate(todayISO())
@@ -40,7 +40,7 @@ export function useSaleForm() {
 
   function buscarClientes(term: string) {
     setClientSearch(term)
-    setClientList(term.trim() ? searchClients(term) : [])
+    setClientList(searchClients(term))
   }
 
   function selecionarProduto(product: Product | null) {
@@ -52,7 +52,11 @@ export function useSaleForm() {
   function selecionarCliente(client: MockClient) {
     setSelectedClient(client)
     setClientSearch(client.name)
-    setClientList([])
+    setClientList(MOCK_CLIENTS)
+  }
+
+  function deselecionarCliente() {
+    setSelectedClient(null)
   }
 
   function alterarQuantidade(qty: number) {
@@ -91,6 +95,7 @@ export function useSaleForm() {
     buscarClientes,
     selecionarProduto,
     selecionarCliente,
+    deselecionarCliente,
     alterarQuantidade,
     preencherParaEdicao,
     resetForm,

@@ -133,6 +133,7 @@ export function SaleView() {
         onProductSelect={form.selecionarProduto}
         onClientSearch={form.buscarClientes}
         onClientSelect={form.selecionarCliente}
+        onClientDeselect={form.deselecionarCliente}
         onQuantityChange={form.alterarQuantidade}
         onUnitPriceChange={form.setUnitPrice}
         onSaleDateChange={form.setSaleDate}
@@ -178,6 +179,7 @@ export function SaleView() {
               <th>Data da Venda</th>
               <th>Produto</th>
               <th>Cliente</th>
+              <th>Telefone</th>
               <th>Qtd</th>
               <th>Valor Unit.</th>
               <th>Valor Total</th>
@@ -186,15 +188,16 @@ export function SaleView() {
           </thead>
           <tbody id="sales-tbody">
             {loading || searching ? (
-              <tr><td colSpan={7} className="loading">Carregando...</td></tr>
+              <tr><td colSpan={8} className="loading">Carregando...</td></tr>
             ) : displayedSales.length === 0 ? (
-              <tr><td colSpan={7} style={{ padding: '12px', color: '#888' }}>Nenhuma venda registrada.</td></tr>
+              <tr><td colSpan={8} style={{ padding: '12px', color: '#888' }}>Nenhuma venda registrada.</td></tr>
             ) : (
               displayedSales.map((s) => (
                 <tr key={s.id}>
                   <td>{formatDate(s.saleDate)}</td>
                   <td>{s.product?.name ?? 'Produto removido'}</td>
                   <td>{findClientById(s.clientId)?.name ?? s.clientId}</td>
+                  <td>{findClientById(s.clientId)?.cellphone ?? '—'}</td>
                   <td>{s.quantity}</td>
                   <td>R$ {s.unitPrice.toFixed(2)}</td>
                   <td>R$ {s.totalPrice.toFixed(2)}</td>

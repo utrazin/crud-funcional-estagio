@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Product } from '../../types'
 import type { MockClient } from '../../mocks/clients'
 
@@ -17,6 +18,7 @@ interface SaleFormProps {
   onProductSelect: (product: Product | null) => void
   onClientSearch: (term: string) => void
   onClientSelect: (client: MockClient) => void
+  onClientDeselect: () => void
   onQuantityChange: (qty: number) => void
   onUnitPriceChange: (price: number) => void
   onSaleDateChange: (date: string) => void
@@ -41,6 +43,7 @@ export function SaleForm({
   onProductSelect,
   onClientSearch,
   onClientSelect,
+  onClientDeselect,
   onQuantityChange,
   onUnitPriceChange,
   onSaleDateChange,
@@ -48,9 +51,20 @@ export function SaleForm({
   onCancelEdit,
   loading,
 }: SaleFormProps) {
-  const filteredProducts = productSearch
-    ? products.filter((p) => p.name.toLowerCase().includes(productSearch.toLowerCase()))
-    : products
+  const [productFocused, setProductFocused] = useState(false)
+  const [clientFocused, setClientFocused] = useState(false)
+
+  const filteredProducts = products.filter((p) =>
+    productSearch ? p.name.toLowerCase().includes(productSearch.toLowerCase()) : true
+  )
+
+  const showProductList = !selectedProduct && productFocused && filteredProducts.length > 0
+  const visibleProducts = productSearch ? filteredProducts : filteredProducts.slice(0, 3)
+
+  const showClientList = !selectedClient && clientFocused
+  const visibleClients = clientSearch
+    ? clientList
+    : clientList.slice(0, 3)
 
   return (
     <div className="card">
@@ -70,12 +84,14 @@ export function SaleForm({
                 onProductSearch(e.target.value)
                 if (!e.target.value) onProductSelect(null)
               }}
+              onFocus={() => setProductFocused(true)}
+              onBlur={() => setTimeout(() => setProductFocused(false), 150)}
               autoComplete="off"
               required={!selectedProduct}
             />
-            {productSearch && !selectedProduct && filteredProducts.length > 0 && (
+            {showProductList && (
               <ul className="autocomplete-list">
-                {filteredProducts.map((p) => (
+                {visibleProducts.map((p) => (
                   <li key={p.id} onClick={() => onProductSelect(p)}>
                     {p.name} — R$ {p.price.toFixed(2)} (estoque: {p.stockQuantity})
                   </li>
@@ -92,13 +108,18 @@ export function SaleForm({
               type="text"
               placeholder="Buscar cliente..."
               value={clientSearch}
-              onChange={(e) => onClientSearch(e.target.value)}
+              onChange={(e) => {
+                onClientSearch(e.target.value)
+                if (selectedClient) onClientDeselect()
+              }}
+              onFocus={() => setClientFocused(true)}
+              onBlur={() => setTimeout(() => setClientFocused(false), 150)}
               autoComplete="off"
               required={!selectedClient}
             />
-            {clientList.length > 0 && !selectedClient && (
+            {showClientList && visibleClients.length > 0 && (
               <ul className="autocomplete-list">
-                {clientList.map((c) => (
+                {visibleClients.map((c) => (
                   <li key={c.id} onClick={() => onClientSelect(c)}>
                     {c.name}{c.cellphone ? ` — ${c.cellphone}` : ''}
                   </li>
