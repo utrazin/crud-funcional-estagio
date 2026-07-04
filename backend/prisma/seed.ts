@@ -46,7 +46,6 @@ const CLIENTS = {
 // Felipe Carvalho  → João Silva      (client-001)
 
 async function main() {
-  console.log('Inserindo produtos...')
 
   const created = await Promise.all(
     products.map((p) => prisma.product.create({ data: p }))
@@ -55,9 +54,6 @@ async function main() {
   // Mapeia nome do produto para o id gerado
   const productIdByName: Record<string, string> = {}
   created.forEach((p) => { productIdByName[p.name] = p.id })
-
-  console.log(`${created.length} produtos inseridos.`)
-  console.log('Inserindo vendas...')
 
   type SaleData = {
     productName: string
@@ -109,8 +105,6 @@ async function main() {
       },
     })
   }
-
-  console.log(`${sales.length} vendas inseridas.`)
 }
 
 main()

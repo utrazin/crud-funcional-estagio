@@ -11,7 +11,7 @@ export class SaleController {
       where: { deletedAt: null },
       orderBy: { saleDate: 'desc' },
       include: {
-        product: { select: { id: true, name: true, price: true } },
+        product: { select: { id: true, name: true, price: true, deletedAt: true } },
       },
     })
   }
@@ -28,7 +28,7 @@ export class SaleController {
       },
       orderBy: { saleDate: 'desc' },
       include: {
-        product: { select: { id: true, name: true, price: true } },
+        product: { select: { id: true, name: true, price: true, deletedAt: true } },
       },
     })
 
@@ -45,7 +45,7 @@ export class SaleController {
           },
           orderBy: { saleDate: 'desc' },
           include: {
-            product: { select: { id: true, name: true, price: true } },
+            product: { select: { id: true, name: true, price: true, deletedAt: true } },
           },
         })
       : []

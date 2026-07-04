@@ -192,25 +192,37 @@ export function SaleView() {
             ) : displayedSales.length === 0 ? (
               <tr><td colSpan={8} style={{ padding: '12px', color: '#888' }}>Nenhuma venda registrada.</td></tr>
             ) : (
-              displayedSales.map((s) => (
-                <tr key={s.id}>
-                  <td>{formatDate(s.saleDate)}</td>
-                  <td>{s.product?.name ?? 'Produto removido'}</td>
-                  <td>{findClientById(s.clientId)?.name ?? s.clientId}</td>
-                  <td>{findClientById(s.clientId)?.cellphone ?? '—'}</td>
-                  <td>{s.quantity}</td>
-                  <td>R$ {s.unitPrice.toFixed(2)}</td>
-                  <td>R$ {s.totalPrice.toFixed(2)}</td>
-                  <td style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    <button className="btn btn-warning" onClick={() => editar(s)}>
-                      Editar
-                    </button>
-                    <button className="btn btn-danger" onClick={() => cancelar(s)}>
-                      Cancelar
-                    </button>
-                  </td>
-                </tr>
-              ))
+              displayedSales.map((s) => {
+                const produtoDeletado = !!s.product?.deletedAt
+                return (
+                  <tr key={s.id}>
+                    <td>{formatDate(s.saleDate)}</td>
+                    <td>{s.product?.name ?? 'Produto removido'}</td>
+                    <td>{findClientById(s.clientId)?.name ?? s.clientId}</td>
+                    <td>{findClientById(s.clientId)?.cellphone ?? '—'}</td>
+                    <td>{s.quantity}</td>
+                    <td>R$ {s.unitPrice.toFixed(2)}</td>
+                    <td>R$ {s.totalPrice.toFixed(2)}</td>
+                    <td style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      {produtoDeletado ? (
+                        <span className="btn-unavailable-wrapper">
+                          <button className="btn btn-unavailable" disabled>
+                            Indisponível
+                          </button>
+                          <span className="btn-tooltip">Produto relacionado a venda foi excluído.</span>
+                        </span>
+                      ) : (
+                        <button className="btn btn-warning" onClick={() => editar(s)}>
+                          Editar
+                        </button>
+                      )}
+                      <button className="btn btn-danger" onClick={() => cancelar(s)}>
+                        Cancelar
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>

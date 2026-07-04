@@ -25,6 +25,7 @@ export interface Sale {
     id: string
     name: string
     price: number
+    deletedAt: string | null
   }
 }
 
