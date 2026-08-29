@@ -1,0 +1,74 @@
+.input-ds__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+}
+
+.input-ds__label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-text-primary);
+}
+
+.input-ds__wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: 44px;
+  padding: 0 var(--space-16);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-surface);
+  transition: border-color 0.15s ease;
+}
+
+.input-ds__wrapper:focus-within {
+  border-color: var(--color-border-focus);
+  border-width: 1.5px;
+}
+
+.input-ds__wrapper--error {
+  border-color: var(--color-border-danger);
+  border-width: 1.5px;
+}
+
+.input-ds__wrapper--disabled {
+  background-color: var(--color-bg-disabled);
+  border-color: var(--color-border-default);
+}
+
+.input-ds__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--color-icon-default);
+  flex-shrink: 0;
+}
+
+.input-ds__control {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+}
+
+.input-ds__control::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input-ds__control:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.input-ds__error {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-danger);
+}

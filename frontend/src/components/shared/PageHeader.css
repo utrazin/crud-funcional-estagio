@@ -1,0 +1,18 @@
+.page-header-ds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.page-header-ds h1 {
+  color: var(--color-text-primary);
+}
+
+.page-header-ds__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+}

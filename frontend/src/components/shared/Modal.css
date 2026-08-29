@@ -1,0 +1,75 @@
+.modal-ds__scrim {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 31, 61, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-16);
+}
+
+.modal-ds__card {
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  padding: var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.modal-ds__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-ds__header h2 {
+  color: var(--color-text-primary);
+}
+
+.modal-ds__close {
+  display: inline-flex;
+  color: var(--color-text-tertiary);
+}
+
+.modal-ds__close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modal-ds__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.modal-ds__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-12);
+}
+
+/* Linha com 2 campos lado a lado dentro de um modal (ex: Produto + Custo).
+   Abaixo do breakpoint, empilha em 1 campo por linha em vez de deixá-los
+   espremidos lado a lado — espremidos, o label mais longo quebra em 2 linhas
+   enquanto o outro fica em 1, e a linha toda fica desalinhada. */
+.modal-field-row {
+  display: flex;
+  gap: var(--space-16);
+}
+
+.modal-field-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .modal-field-row {
+    flex-direction: column;
+  }
+}

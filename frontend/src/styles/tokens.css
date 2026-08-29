@@ -1,0 +1,96 @@
+/* ==== Primitivas ==== */
+:root {
+  --white: #FFFFFF;
+  --gray-25: #FAFBFC;
+  --gray-50: #F4F5F7;
+  --gray-100: #E8EAED;
+  --gray-200: #D3D6DB;
+  --gray-300: #B4B8C0;
+  --gray-400: #8B909B;
+  --gray-500: #6B707A;
+  --gray-600: #52565F;
+  --gray-700: #3D4048;
+  --gray-900: #16181C;
+
+  --blue-50: #EFF6FF;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+
+  --navy-900: #0F1F3D;
+  --navy-800: #1B2E52;
+  --navy-icon: #7FB2FF;
+  --navy-nav-default-text: #B6C2E0;
+  --navy-nav-default-icon: #7C8CB3;
+  --navy-user-role: #8DA0CC;
+
+  --green-50: #F0FDF4;
+  --green-500: #16A34A;
+  --green-600: #15803D;
+  --green-700: #166534;
+
+  --red-50: #FEF2F2;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+
+  --amber-50: #FFFBEB;
+  --amber-700: #92400E;
+
+  /* ==== Semânticas ==== */
+  --color-bg-page: var(--gray-25);
+  --color-bg-surface: var(--white);
+  --color-bg-surface-secondary: var(--gray-50);
+  --color-bg-brand: var(--blue-600);
+  --color-bg-brand-hover: var(--blue-700);
+  --color-bg-brand-subtle: var(--blue-50);
+  --color-bg-navy: var(--navy-900);
+  --color-bg-success-subtle: var(--green-50);
+  --color-bg-danger-subtle: var(--red-50);
+  --color-bg-danger-solid: var(--red-600);
+  --color-bg-warning-subtle: var(--amber-50);
+  --color-bg-disabled: var(--gray-100);
+
+  --color-text-primary: var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-tertiary: var(--gray-400);
+  --color-text-on-brand: var(--white);
+  --color-text-link: var(--blue-600);
+  --color-text-success: var(--green-700);
+  --color-text-danger: var(--red-600);
+  --color-text-warning: var(--amber-700);
+  --color-text-disabled: var(--gray-400);
+
+  --color-border-default: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+  --color-border-focus: var(--blue-500);
+  --color-border-danger: var(--red-500);
+
+  --color-icon-default: var(--gray-500);
+  --color-icon-brand: var(--blue-600);
+
+  /* ==== Espaçamento ==== */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* ==== Raio ==== */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  /* ==== Sombras (uso mínimo) ==== */
+  --shadow-sm: 0 2px 6px rgba(22, 24, 28, 0.08);
+  --shadow-modal: 0 8px 24px -4px rgba(22, 24, 28, 0.16);
+
+  /* ==== Tipografia ==== */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

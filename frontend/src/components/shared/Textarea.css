@@ -1,0 +1,23 @@
+.textarea-ds {
+  width: 100%;
+  min-height: 90px;
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-surface);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.textarea-ds:focus {
+  border-color: var(--color-border-focus);
+  border-width: 1.5px;
+}
+
+.textarea-ds::placeholder {
+  color: var(--color-text-tertiary);
+}

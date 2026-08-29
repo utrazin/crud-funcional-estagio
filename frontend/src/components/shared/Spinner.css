@@ -1,0 +1,16 @@
+.spinner-ds {
+  display: inline-block;
+  flex-shrink: 0;
+  border-style: solid;
+  border-color: currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spinner-ds-spin 0.7s linear infinite;
+  opacity: 0.85;
+}
+
+@keyframes spinner-ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

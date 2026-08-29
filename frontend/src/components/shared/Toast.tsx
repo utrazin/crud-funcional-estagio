@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import './Toast.css'
 
 interface ToastProps {
   message: string
@@ -29,7 +30,7 @@ export function Toast({ message, type, onClear }: ToastProps) {
   if (!visible || !message) return null
 
   return (
-    <div className={`msg ${type}`} style={{ display: 'block' }}>
+    <div className={`toast-ds toast-ds--${type} text-body-default`}>
       {message}
     </div>
   )

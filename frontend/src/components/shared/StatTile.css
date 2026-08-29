@@ -1,0 +1,48 @@
+.stat-tile-ds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-20);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-surface);
+  min-width: 0;
+  word-break: break-word;
+}
+
+.stat-tile-ds--featured {
+  /* Ocupa 2 colunas do grid quando há espaço; se só couber 1 coluna no total
+     (mobile), o grid limita o span automaticamente e ele vira 1 coluna normal. */
+  grid-column: span 2;
+  border-width: 1.5px;
+}
+
+.stat-tile-ds__label {
+  color: var(--color-text-tertiary);
+}
+
+.stat-tile-ds--featured .stat-tile-ds__label {
+  color: inherit;
+}
+
+.stat-tile-ds__value {
+  color: var(--color-text-primary);
+}
+
+.stat-tile-ds--blue {
+  background-color: var(--color-bg-brand-subtle);
+  border-color: var(--color-border-focus);
+  color: var(--color-text-link);
+}
+.stat-tile-ds--blue .stat-tile-ds__value {
+  color: var(--blue-700);
+}
+
+.stat-tile-ds--green {
+  background-color: var(--color-bg-success-subtle);
+  border-color: var(--green-500);
+  color: var(--color-text-success);
+}
+.stat-tile-ds--green .stat-tile-ds__value {
+  color: var(--green-600);
+}

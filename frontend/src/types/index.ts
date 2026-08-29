@@ -10,6 +10,18 @@ export interface Product {
   deletedAt: string | null
 }
 
+export interface Client {
+  id: string
+  name: string
+  cellphone: string | null
+  totalPurchases: number
+  totalProductsPurchased: number
+  totalSpent: number
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
 export interface Sale {
   id: string
   productId: string
@@ -25,6 +37,12 @@ export interface Sale {
     id: string
     name: string
     price: number
+    deletedAt: string | null
+  }
+  client?: {
+    id: string
+    name: string
+    cellphone: string | null
     deletedAt: string | null
   }
 }

@@ -1,43 +1,35 @@
-import { useState } from 'react'
-import { ProductView } from './components/products/ProductView'
-import { SaleView } from './components/sales/SaleView'
-import logo from './assets/logo.svg'
-import produtosIcon from './assets/produtos.svg'
-import vendasIcon from './assets/vendas.svg'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { LoginPage } from './pages/LoginPage'
+import { ProductsPage } from './pages/ProductsPage'
+import { NewProductPage } from './pages/NewProductPage'
+import { ProductDetailPage } from './pages/ProductDetailPage'
+import { ClientsPage } from './pages/ClientsPage'
+import { ClientDetailPage } from './pages/ClientDetailPage'
+import { ReportsPage } from './pages/ReportsPage'
+import { ProtectedRoute } from './auth/ProtectedRoute'
+import { AppLayout } from './layouts/AppLayout'
 
-type Tab = 'products' | 'sales'
+function Protected({ children }: { children: ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <AppLayout>{children}</AppLayout>
+    </ProtectedRoute>
+  )
+}
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('products')
-
   return (
-    <>
-      <header>
-        <img src={logo} alt="Logo StockFinance" />
-        <h1>StockFinance - Sistema de Controle de Estoque e Gestão Financeira</h1>
-      </header>
-
-      <div className="tabs">
-        <button
-          className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`}
-          onClick={() => setActiveTab('products')}
-        >
-          <img src={produtosIcon} alt="Logo Produtos" />
-          Produtos
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'sales' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sales')}
-        >
-          <img src={vendasIcon} alt="Logo Vendas" />
-          Vendas
-        </button>
-      </div>
-
-      <div className="tab-content active">
-        {activeTab === 'products' && <ProductView />}
-        {activeTab === 'sales' && <SaleView />}
-      </div>
-    </>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/produtos" element={<Protected><ProductsPage /></Protected>} />
+      <Route path="/produtos/novo" element={<Protected><NewProductPage /></Protected>} />
+      <Route path="/produtos/:id" element={<Protected><ProductDetailPage /></Protected>} />
+      <Route path="/clientes" element={<Protected><ClientsPage /></Protected>} />
+      <Route path="/clientes/:id" element={<Protected><ClientDetailPage /></Protected>} />
+      <Route path="/relatorios" element={<Protected><ReportsPage /></Protected>} />
+      <Route path="/" element={<Navigate to="/produtos" replace />} />
+      <Route path="*" element={<Navigate to="/produtos" replace />} />
+    </Routes>
   )
 }

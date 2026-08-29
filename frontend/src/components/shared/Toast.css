@@ -1,0 +1,18 @@
+.toast-ds {
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.toast-ds--success {
+  background-color: var(--color-bg-success-subtle);
+  color: var(--color-text-success);
+  border: 1px solid var(--green-500);
+}
+
+.toast-ds--error {
+  background-color: var(--color-bg-danger-subtle);
+  color: var(--color-text-danger);
+  border: 1px solid var(--red-500);
+}

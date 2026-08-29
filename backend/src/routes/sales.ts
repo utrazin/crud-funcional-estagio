@@ -18,8 +18,8 @@ router.get('/', async (req: Request, res: Response) => {
 // Registrar venda
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { productId, clientId, quantity, salePrice, saleDate } = req.body
-    const sale = await controller.registrar(productId, clientId, quantity, salePrice, saleDate)
+    const { productId, clientId, clientName, quantity, salePrice, saleDate } = req.body
+    const sale = await controller.registrar(productId, { clientId, clientName }, quantity, salePrice, saleDate)
     res.status(201).json(sale)
   } catch (err: any) {
     const status = err.message.includes('não encontrado') ? 404

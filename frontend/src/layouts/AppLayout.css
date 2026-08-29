@@ -1,0 +1,39 @@
+.app-layout-ds {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+}
+
+.app-layout-ds__content {
+  flex: 1;
+  min-width: 0;
+  /* A sidebar é `position: fixed` (ver Sidebar.css) e sai do fluxo normal,
+     então essa margem reserva o espaço dela para o conteúdo não ficar coberto. */
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: var(--space-32);
+}
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .app-layout-ds__content {
+    margin-left: 64px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-layout-ds__content {
+    padding: var(--space-20);
+  }
+}
+
+/* Mobile: sidebar virou menu inferior fixo (ver Sidebar.css), então o conteúdo
+   não precisa mais de margem à esquerda, só de espaço embaixo pra não ficar
+   coberto pela barra fixa. */
+@media (max-width: 640px) {
+  .app-layout-ds__content {
+    margin-left: 0;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}

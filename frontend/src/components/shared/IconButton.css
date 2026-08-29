@@ -1,0 +1,35 @@
+.icon-btn-ds {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-default);
+  background-color: transparent;
+  color: var(--color-icon-default);
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.icon-btn-ds:hover:not(:disabled) {
+  background-color: var(--color-bg-surface-secondary);
+}
+
+.icon-btn-ds:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn-ds--danger {
+  color: var(--color-text-danger);
+}
+
+.icon-btn-ds--success {
+  color: var(--green-600);
+}
+
+.icon-btn-ds svg {
+  width: 16px;
+  height: 16px;
+}

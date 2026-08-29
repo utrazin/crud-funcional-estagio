@@ -93,6 +93,34 @@ export class ProductController {
     })
   }
 
+  async detalhes(id: string) {
+    const product = await this.productRepository.findUnique({ where: { id } })
+    if (!product || product.deletedAt) {
+      throw new Error('Produto não encontrado')
+    }
+
+    const sales = await prisma.sale.findMany({
+      where: { productId: id, deletedAt: null },
+      orderBy: { saleDate: 'desc' },
+      include: { client: { select: { id: true, name: true } } },
+    })
+
+    const valorTotalVendido = sales.reduce((sum, s) => sum + s.totalPrice, 0)
+
+    return {
+      ...product,
+      valorTotalVendido,
+      vendas: sales.map((s) => ({
+        id: s.id,
+        quantity: s.quantity,
+        unitPrice: s.unitPrice,
+        totalPrice: s.totalPrice,
+        saleDate: s.saleDate,
+        comprador: s.client?.name ?? 'Cliente removido',
+      })),
+    }
+  }
+
   // Métodos internos usados pelo SaleController
 
   async buscarPorId(id: string) {

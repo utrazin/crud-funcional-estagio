@@ -25,6 +25,17 @@ router.get('/buscar', async (req: Request, res: Response) => {
   }
 })
 
+// Detalhes do produto (com histórico de vendas) — precisa vir depois de /buscar
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const product = await controller.detalhes(req.params.id)
+    res.json(product)
+  } catch (err: any) {
+    const status = err.message.includes('não encontrado') ? 404 : 500
+    res.status(status).json({ error: err.message || 'Erro ao buscar produto' })
+  }
+})
+
 // Criar produto
 router.post('/', async (req: Request, res: Response) => {
   try {

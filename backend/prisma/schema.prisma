@@ -6,6 +6,18 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("Proprietário/Admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
 model Product {
   id            String    @id @default(cuid())
   name          String
@@ -22,6 +34,22 @@ model Product {
   @@map("products")
 }
 
+model Client {
+  id                     String    @id @default(cuid())
+  name                   String
+  cellphone              String?
+  totalPurchases         Int       @default(0)
+  totalProductsPurchased Int       @default(0)
+  totalSpent             Float     @default(0)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+
+  sales Sale[]
+
+  @@map("clients")
+}
+
 model Sale {
   id         String    @id @default(cuid())
   productId  String
@@ -35,6 +63,7 @@ model Sale {
   deletedAt  DateTime?
 
   product Product @relation(fields: [productId], references: [id])
+  client  Client  @relation(fields: [clientId], references: [id])
 
   @@map("sales")
 }

@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 
@@ -27,6 +28,14 @@ const CLIENTS = {
   pedro:   'client-005', // Pedro Almeida
 }
 
+const CLIENT_SEED_DATA = [
+  { id: CLIENTS.joao,   name: 'João Silva',     cellphone: '(11) 98765-4321' },
+  { id: CLIENTS.maria,  name: 'Maria Oliveira', cellphone: '(21) 99234-5678' },
+  { id: CLIENTS.carlos, name: 'Carlos Santos',  cellphone: '(31) 97654-3210' },
+  { id: CLIENTS.ana,    name: 'Ana Costa',      cellphone: '(41) 98123-4567' },
+  { id: CLIENTS.pedro,  name: 'Pedro Almeida',  cellphone: '(51) 99876-5432' },
+]
+
 // Mapeamento das 15 vendas:
 // original → substituído por
 // João Silva       → João Silva      (client-001)
@@ -46,6 +55,27 @@ const CLIENTS = {
 // Felipe Carvalho  → João Silva      (client-001)
 
 async function main() {
+  const adminPasswordHash = await bcrypt.hash('Teste123!', 10)
+  await prisma.user.upsert({
+    where: { email: 'admin@stockfinance.com' },
+    update: {},
+    create: {
+      email: 'admin@stockfinance.com',
+      passwordHash: adminPasswordHash,
+      name: 'Fabricio Rodrigues',
+      role: 'Proprietário/Admin',
+    },
+  })
+
+  await Promise.all(
+    CLIENT_SEED_DATA.map((c) =>
+      prisma.client.upsert({
+        where: { id: c.id },
+        update: {},
+        create: { id: c.id, name: c.name, cellphone: c.cellphone },
+      }),
+    ),
+  )
 
   const created = await Promise.all(
     products.map((p) => prisma.product.create({ data: p }))
@@ -102,6 +132,16 @@ async function main() {
       data: {
         stockQuantity: { decrement: s.quantity },
         salesCount:    { increment: s.quantity },
+      },
+    })
+
+    // Atualiza totais do cliente
+    await prisma.client.update({
+      where: { id: s.clientId },
+      data: {
+        totalPurchases: { increment: 1 },
+        totalProductsPurchased: { increment: s.quantity },
+        totalSpent: { increment: totalPrice },
       },
     })
   }

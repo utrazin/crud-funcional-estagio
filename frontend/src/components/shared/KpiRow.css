@@ -1,0 +1,8 @@
+.kpi-row-ds {
+  display: grid;
+  /* Cada tile nunca fica menor que 160px — o grid decide sozinho quantas
+     colunas cabem (5, 4, 3, 2 ou 1) conforme a largura disponível, em vez de
+     forçar todos lado a lado até um breakpoint fixo e quebrar o texto. */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-16);
+}
