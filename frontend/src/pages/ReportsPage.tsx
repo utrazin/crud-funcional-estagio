@@ -124,7 +124,7 @@ export function ReportsPage() {
         title="Relatórios Financeiros"
         actions={
           <>
-            <input
+            {/* <input
               ref={fileInputRef}
               type="file"
               accept=".csv,.xlsx"
@@ -153,7 +153,7 @@ export function ReportsPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </div> */}
           </>
         }
       />
@@ -200,6 +200,7 @@ export function ReportsPage() {
               <thead>
                 <tr>
                   <th className="text-label-small">Produto</th>
+                  <th className="text-label-small">Cliente</th>
                   <th className="text-label-small">Quantidade</th>
                   <th className="text-label-small">Valor</th>
                   <th className="text-label-small">Data</th>
@@ -210,6 +211,7 @@ export function ReportsPage() {
                 {sales.map((sale) => (
                   <tr key={sale.id}>
                     <td className="text-body-medium">{sale.product.name}</td>
+                    <td className="text-body-default">{sale.client?.name ?? 'Cliente removido'}</td>
                     <td className="text-body-default">{sale.quantity}</td>
                     <td className="text-body-medium">{currency(sale.totalPrice)}</td>
                     <td className="text-body-default">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td>
