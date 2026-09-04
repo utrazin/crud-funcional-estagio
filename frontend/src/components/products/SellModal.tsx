@@ -8,6 +8,7 @@ import { Input } from '../shared/Input'
 import { CurrencyInput } from '../shared/CurrencyInput'
 import { Badge } from '../shared/Badge'
 import { ClientAutocomplete } from './ClientAutocomplete'
+import { validateSaleQuantity, validatePrice, validateClientName, validateRequired } from '../../utils/validators'
 
 interface SellModalProps {
   product: Product | null
@@ -28,7 +29,6 @@ export function SellModal({ product, onClose, onSold, onError }: SellModalProps)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [saleDate, setSaleDate] = useState(today())
   const [submitting, setSubmitting] = useState(false)
-  const [attempted, setAttempted] = useState(false)
 
   useEffect(() => {
     if (product) {
@@ -37,24 +37,22 @@ export function SellModal({ product, onClose, onSold, onError }: SellModalProps)
       setBuyerName('')
       setSelectedClient(null)
       setSaleDate(today())
-      setAttempted(false)
     }
   }, [product])
 
   if (!product) return null
 
   const quantityNumber = Number(quantity)
-  const quantityInvalid = quantity.trim() === '' || isNaN(quantityNumber) || quantityNumber <= 0 || !Number.isInteger(quantityNumber) || quantityNumber > product.stockQuantity
-  const priceInvalid = !salePrice || salePrice < product.price
-  const buyerInvalid = !buyerName.trim()
-  const dateInvalid = !saleDate
+  const quantityError = validateSaleQuantity(quantity, product.stockQuantity)
+  const priceError = validatePrice(salePrice, product.price)
+  const buyerError = selectedClient ? undefined : validateClientName(buyerName)
+  const dateError = validateRequired(saleDate, 'Data da venda é obrigatória')
+  const hasError = !!quantityError || !!priceError || !!buyerError || !!dateError
 
   const total = (isNaN(quantityNumber) ? 0 : quantityNumber) * salePrice
 
   async function handleSubmit() {
-    if (!product) return
-    setAttempted(true)
-    if (quantityInvalid || priceInvalid || buyerInvalid || dateInvalid) return
+    if (!product || hasError) return
 
     setSubmitting(true)
     try {
@@ -84,7 +82,7 @@ export function SellModal({ product, onClose, onSold, onError }: SellModalProps)
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button variant="success" onClick={handleSubmit} loading={submitting}>Registrar</Button>
+          <Button variant="success" onClick={handleSubmit} disabled={hasError} loading={submitting}>Registrar</Button>
         </>
       }
     >
@@ -102,27 +100,24 @@ export function SellModal({ product, onClose, onSold, onError }: SellModalProps)
           step={1}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          error={attempted && quantityInvalid ? `Informe de 1 a ${product.stockQuantity}` : undefined}
+          error={quantityError}
         />
         <CurrencyInput
           label="Valor da Venda (Unitário) *"
           value={salePrice}
           onChange={setSalePrice}
-          error={attempted && priceInvalid ? `Mínimo ${currency(product.price)}` : undefined}
+          error={priceError}
         />
       </div>
 
-      <ClientAutocomplete value={buyerName} onChange={setBuyerName} onSelect={setSelectedClient} />
-      {attempted && buyerInvalid && (
-        <span className="text-caption" style={{ color: 'var(--color-text-danger)' }}>Nome do comprador é obrigatório</span>
-      )}
+      <ClientAutocomplete value={buyerName} onChange={setBuyerName} onSelect={setSelectedClient} error={buyerName ? buyerError : undefined} />
 
       <Input
         label="Data da Venda *"
         type="date"
         value={saleDate}
         onChange={(e) => setSaleDate(e.target.value)}
-        error={attempted && dateInvalid ? 'Obrigatório' : undefined}
+        error={dateError}
       />
 
       <Badge variant="success">Estoque Disponível: {product.stockQuantity} unidades</Badge>

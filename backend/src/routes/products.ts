@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express'
 import { ProductController } from '../controllers/ProductController'
+import { AppError } from '../utils/validation'
 
 const router = Router()
 const controller = new ProductController()
+
+function handleError(err: any, res: Response, fallback: string) {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message })
+  }
+  res.status(500).json({ error: err.message || fallback })
+}
 
 // Listar todos os produtos
 router.get('/', async (_req: Request, res: Response) => {
@@ -10,7 +18,7 @@ router.get('/', async (_req: Request, res: Response) => {
     const products = await controller.listar()
     res.json(products)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao listar produtos' })
+    handleError(err, res, 'Erro ao listar produtos')
   }
 })
 
@@ -21,7 +29,7 @@ router.get('/buscar', async (req: Request, res: Response) => {
     const products = await controller.buscarPorNome(name)
     res.json(products)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao buscar produtos' })
+    handleError(err, res, 'Erro ao buscar produtos')
   }
 })
 
@@ -31,8 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const product = await controller.detalhes(req.params.id)
     res.json(product)
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404 : 500
-    res.status(status).json({ error: err.message || 'Erro ao buscar produto' })
+    handleError(err, res, 'Erro ao buscar produto')
   }
 })
 
@@ -43,9 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
     const product = await controller.criar(name, price, stockQuantity, description)
     res.status(201).json(product)
   } catch (err: any) {
-    const status = ['Nome é obrigatório', 'Preço deve ser maior que zero', 'Quantidade deve ser maior ou igual a zero']
-      .includes(err.message) ? 400 : 500
-    res.status(status).json({ error: err.message || 'Erro ao criar produto' })
+    handleError(err, res, 'Erro ao criar produto')
   }
 })
 
@@ -56,11 +61,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const product = await controller.atualizar(req.params.id, name, price, stockQuantity, description)
     res.json(product)
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404
-      : err.message.includes('não está disponível') ? 409
-      : err.message.includes('obrigatório') || err.message.includes('deve ser') ? 400
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao atualizar produto' })
+    handleError(err, res, 'Erro ao atualizar produto')
   }
 })
 
@@ -70,10 +71,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     await controller.excluir(req.params.id)
     res.status(204).send()
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404
-      : err.message.includes('já foi excluído') ? 409
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao excluir produto' })
+    handleError(err, res, 'Erro ao excluir produto')
   }
 })
 

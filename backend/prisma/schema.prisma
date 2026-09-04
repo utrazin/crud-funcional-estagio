@@ -20,7 +20,7 @@ model User {
 
 model Product {
   id            String    @id @default(cuid())
-  name          String
+  name          String    @db.VarChar(150)
   price         Float
   stockQuantity Int       @default(0)
   salesCount    Int       @default(0)
@@ -36,8 +36,8 @@ model Product {
 
 model Client {
   id                     String    @id @default(cuid())
-  name                   String
-  cellphone              String?
+  name                   String    @db.VarChar(100)
+  cellphone              String?   @db.VarChar(20)
   totalPurchases         Int       @default(0)
   totalProductsPurchased Int       @default(0)
   totalSpent             Float     @default(0)

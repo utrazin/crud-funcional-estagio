@@ -1,4 +1,5 @@
 import { prisma } from '../prisma'
+import { assertClientName, assertPhone, NotFoundError, ConflictError } from '../utils/validation'
 
 export class ClientController {
   private clientRepository = prisma.client
@@ -25,9 +26,8 @@ export class ClientController {
   }
 
   async criar(name: string, cellphone?: string) {
-    if (!name || !name.trim()) {
-      throw new Error('Nome é obrigatório')
-    }
+    assertClientName(name)
+    assertPhone(cellphone)
 
     return this.clientRepository.create({
       data: {
@@ -41,14 +41,13 @@ export class ClientController {
     const existing = await this.clientRepository.findUnique({ where: { id } })
 
     if (!existing) {
-      throw new Error('Cliente não encontrado')
+      throw new NotFoundError('Cliente não encontrado')
     }
     if (existing.deletedAt) {
-      throw new Error('Cliente não está disponível')
+      throw new ConflictError('Cliente não está disponível')
     }
-    if (!name || !name.trim()) {
-      throw new Error('Nome é obrigatório')
-    }
+    assertClientName(name)
+    assertPhone(cellphone)
 
     return this.clientRepository.update({
       where: { id },
@@ -60,10 +59,10 @@ export class ClientController {
     const existing = await this.clientRepository.findUnique({ where: { id } })
 
     if (!existing) {
-      throw new Error('Cliente não encontrado')
+      throw new NotFoundError('Cliente não encontrado')
     }
     if (existing.deletedAt) {
-      throw new Error('Cliente já foi excluído')
+      throw new ConflictError('Cliente já foi excluído')
     }
 
     await this.clientRepository.update({
@@ -75,7 +74,7 @@ export class ClientController {
   async detalhes(id: string) {
     const client = await this.clientRepository.findUnique({ where: { id } })
     if (!client || client.deletedAt) {
-      throw new Error('Cliente não encontrado')
+      throw new NotFoundError('Cliente não encontrado')
     }
 
     const sales = await prisma.sale.findMany({
@@ -104,6 +103,7 @@ export class ClientController {
   }
 
   async buscarOuCriarPorNome(name: string) {
+    assertClientName(name)
     const trimmed = name.trim()
     const existing = await this.clientRepository.findFirst({
       where: { deletedAt: null, name: { equals: trimmed, mode: 'insensitive' } },

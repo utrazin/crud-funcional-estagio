@@ -13,6 +13,7 @@ import { useToast } from '../components/shared/useToast'
 import { PageLoader } from '../components/shared/PageLoader'
 import { ChevronLeftIcon, PencilIcon, TrashIcon, CheckIcon, XIcon } from '../components/shared/icons'
 import { maskPhone } from '../utils/masks'
+import { validateClientName, validatePhone } from '../utils/validators'
 import '../styles/table.css'
 import './ClientDetailPage.css'
 
@@ -53,7 +54,9 @@ export function ClientDetailPage() {
   if (loading) return <PageLoader label="Carregando cliente..." />
   if (!client) return <p className="text-body-default">Cliente não encontrado.</p>
 
-  const nameInvalid = !draftName.trim()
+  const nameError = validateClientName(draftName)
+  const phoneError = validatePhone(draftPhone)
+  const hasError = !!nameError || !!phoneError
 
   function startEdit() {
     if (!client) return
@@ -63,7 +66,7 @@ export function ClientDetailPage() {
   }
 
   async function handleConfirmEdit() {
-    if (!client || nameInvalid) return
+    if (!client || hasError) return
     setSaving(true)
     try {
       await clientsApi.atualizar(client.id, { name: draftName.trim(), cellphone: draftPhone })
@@ -92,7 +95,7 @@ export function ClientDetailPage() {
             <Input
               value={draftName}
               onChange={(e) => setDraftName(e.target.value)}
-              error={nameInvalid ? 'Obrigatório' : undefined}
+              error={nameError}
               placeholder="Nome do cliente"
               autoFocus
               style={{ minWidth: 220 }}
@@ -100,6 +103,7 @@ export function ClientDetailPage() {
             <Input
               value={draftPhone}
               onChange={(e) => setDraftPhone(maskPhone(e.target.value))}
+              error={phoneError}
               placeholder="(11) 98765-4321"
               style={{ minWidth: 200 }}
             />
@@ -116,7 +120,7 @@ export function ClientDetailPage() {
         <div className="client-detail-page__header-actions">
           {editing ? (
             <>
-              <IconButton icon={<CheckIcon />} variant="success" ariaLabel="Confirmar" onClick={handleConfirmEdit} disabled={nameInvalid} loading={saving} />
+              <IconButton icon={<CheckIcon />} variant="success" ariaLabel="Confirmar" onClick={handleConfirmEdit} disabled={hasError} loading={saving} />
               <IconButton icon={<XIcon />} variant="danger" ariaLabel="Cancelar" onClick={() => setEditing(false)} disabled={saving} />
             </>
           ) : (

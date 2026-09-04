@@ -1,4 +1,5 @@
 import { prisma } from '../prisma'
+import { assertProductName, assertPositiveNumber, assertNonNegativeInteger, NotFoundError, ConflictError } from '../utils/validation'
 
 export class ProductController {
   private productRepository = prisma.product
@@ -11,15 +12,9 @@ export class ProductController {
   }
 
   async criar(name: string, price: number, stockQuantity: number, description: string) {
-    if (!name || !name.trim()) {
-      throw new Error('Nome é obrigatório')
-    }
-    if (typeof price !== 'number' || price <= 0) {
-      throw new Error('Preço deve ser maior que zero')
-    }
-    if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
-      throw new Error('Quantidade deve ser maior ou igual a zero')
-    }
+    assertProductName(name)
+    assertPositiveNumber(price, 'Preço')
+    assertNonNegativeInteger(stockQuantity, 'Quantidade')
 
     return this.productRepository.create({
       data: {
@@ -50,10 +45,10 @@ export class ProductController {
     const existing = await this.productRepository.findUnique({ where: { id } })
 
     if (!existing) {
-      throw new Error('Produto não encontrado')
+      throw new NotFoundError('Produto não encontrado')
     }
     if (existing.deletedAt) {
-      throw new Error('Produto já foi excluído')
+      throw new ConflictError('Produto já foi excluído')
     }
 
     await this.productRepository.update({
@@ -66,21 +61,15 @@ export class ProductController {
     const existing = await this.productRepository.findUnique({ where: { id } })
 
     if (!existing) {
-      throw new Error('Produto não encontrado')
+      throw new NotFoundError('Produto não encontrado')
     }
     if (existing.deletedAt) {
-      throw new Error('Produto não está disponível')
+      throw new ConflictError('Produto não está disponível')
     }
 
-    if (!name || !name.trim()) {
-      throw new Error('Nome é obrigatório')
-    }
-    if (typeof price !== 'number' || price <= 0) {
-      throw new Error('Preço deve ser maior que zero')
-    }
-    if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
-      throw new Error('Quantidade deve ser maior ou igual a zero')
-    }
+    assertProductName(name)
+    assertPositiveNumber(price, 'Preço')
+    assertNonNegativeInteger(stockQuantity, 'Quantidade')
 
     return this.productRepository.update({
       where: { id },
@@ -96,7 +85,7 @@ export class ProductController {
   async detalhes(id: string) {
     const product = await this.productRepository.findUnique({ where: { id } })
     if (!product || product.deletedAt) {
-      throw new Error('Produto não encontrado')
+      throw new NotFoundError('Produto não encontrado')
     }
 
     const sales = await prisma.sale.findMany({

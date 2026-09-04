@@ -8,6 +8,7 @@ import { Input } from '../shared/Input'
 import { CurrencyInput } from '../shared/CurrencyInput'
 import { PencilIcon, EyeIcon, TrashIcon, CheckIcon, XIcon } from '../shared/icons'
 import { useInlineRowEdit } from '../shared/useInlineRowEdit'
+import { validateProductName, validateStockQuantity, validatePrice } from '../../utils/validators'
 import '../../styles/table.css'
 
 interface ProductsTableProps {
@@ -32,11 +33,10 @@ export function ProductsTable({ products, onReload, onRequestDelete, onRequestSe
   const { editingId, draft, startEdit, updateDraft, cancel } = useInlineRowEdit<Draft>()
   const [saving, setSaving] = useState(false)
 
-  const quantityNumber = draft ? Number(draft.stockQuantity) : NaN
-  const nameInvalid = !draft?.name?.trim()
-  const quantityInvalid = !draft || draft.stockQuantity.trim() === '' || isNaN(quantityNumber) || quantityNumber < 0 || !Number.isInteger(quantityNumber)
-  const priceInvalid = !draft || draft.price <= 0
-  const hasError = nameInvalid || quantityInvalid || priceInvalid
+  const nameError = draft ? validateProductName(draft.name) : 'Obrigatório'
+  const quantityError = draft ? validateStockQuantity(draft.stockQuantity) : 'Obrigatório'
+  const priceError = draft ? validatePrice(draft.price) : 'Obrigatório'
+  const hasError = !!nameError || !!quantityError || !!priceError
 
   async function handleConfirm(product: Product) {
     if (!draft || hasError) return
@@ -78,7 +78,7 @@ export function ProductsTable({ products, onReload, onRequestDelete, onRequestSe
                     <Input
                       value={draft?.name ?? ''}
                       onChange={(e) => updateDraft({ name: e.target.value })}
-                      error={nameInvalid ? 'Obrigatório' : undefined}
+                      error={nameError}
                       autoFocus
                     />
                   ) : (
@@ -93,7 +93,7 @@ export function ProductsTable({ products, onReload, onRequestDelete, onRequestSe
                       step={1}
                       value={draft?.stockQuantity ?? ''}
                       onChange={(e) => updateDraft({ stockQuantity: e.target.value })}
-                      error={quantityInvalid ? 'Inválida' : undefined}
+                      error={quantityError}
                     />
                   ) : (
                     <span className="text-body-default">{product.stockQuantity} un.</span>
@@ -104,7 +104,7 @@ export function ProductsTable({ products, onReload, onRequestDelete, onRequestSe
                     <CurrencyInput
                       value={draft?.price ?? 0}
                       onChange={(value) => updateDraft({ price: value })}
-                      error={priceInvalid ? 'Inválido' : undefined}
+                      error={priceError}
                     />
                   ) : (
                     <span className="text-body-medium">{currency(product.price)}</span>

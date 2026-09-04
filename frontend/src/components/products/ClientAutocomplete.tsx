@@ -10,9 +10,10 @@ interface ClientAutocompleteProps {
   value: string
   onChange: (value: string) => void
   onSelect: (client: Client | null) => void
+  error?: string
 }
 
-export function ClientAutocomplete({ value, onChange, onSelect }: ClientAutocompleteProps) {
+export function ClientAutocomplete({ value, onChange, onSelect, error }: ClientAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<Client[]>([])
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -72,6 +73,7 @@ export function ClientAutocomplete({ value, onChange, onSelect }: ClientAutocomp
         }}
         onFocus={() => setOpen(true)}
         autoComplete="off"
+        error={error}
       />
       {open && suggestions.length > 0 && (
         <div className="client-autocomplete__dropdown">

@@ -14,6 +14,7 @@ import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { PageLoader } from '../components/shared/PageLoader'
 import { SearchIcon, PlusIcon } from '../components/shared/icons'
+import { usePersistedState } from '../utils/usePersistedState'
 
 const currency = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -22,7 +23,7 @@ export function ProductsPage() {
   const navigate = useNavigate()
   const { products, loading, reload } = useProducts()
   const { toast, showSuccess, showError, clearToast } = useToast()
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = usePersistedState('productsPage.search', '')
   const [sellingProduct, setSellingProduct] = useState<Product | null>(null)
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
 

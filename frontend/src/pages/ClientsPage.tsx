@@ -11,6 +11,7 @@ import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { PageLoader } from '../components/shared/PageLoader'
 import { SearchIcon, PlusIcon } from '../components/shared/icons'
+import { usePersistedState } from '../utils/usePersistedState'
 
 const currency = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -18,7 +19,7 @@ const currency = (value: number) =>
 export function ClientsPage() {
   const { clients, loading, reload } = useClients()
   const { toast, showSuccess, showError, clearToast } = useToast()
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = usePersistedState('clientsPage.search', '')
   const [createOpen, setCreateOpen] = useState(false)
 
   const filtered = useMemo(() => {

@@ -6,6 +6,7 @@ import { Input } from '../components/shared/Input'
 import { CurrencyInput } from '../components/shared/CurrencyInput'
 import { Textarea } from '../components/shared/Textarea'
 import { Button } from '../components/shared/Button'
+import { validateProductName, validateStockQuantity, validatePrice } from '../utils/validators'
 import './NewProductPage.css'
 
 interface FieldErrors {
@@ -26,12 +27,12 @@ export function NewProductPage() {
 
   function validate(): FieldErrors {
     const errors: FieldErrors = {}
-    if (!name.trim()) errors.name = 'Nome é obrigatório'
-    const qty = Number(stockQuantity)
-    if (stockQuantity.trim() === '' || isNaN(qty) || qty < 0 || !Number.isInteger(qty)) {
-      errors.stockQuantity = 'Informe uma quantidade válida'
-    }
-    if (!price || price <= 0) errors.price = 'Informe um preço maior que zero'
+    const nameError = validateProductName(name)
+    if (nameError) errors.name = nameError
+    const qtyError = validateStockQuantity(stockQuantity)
+    if (qtyError) errors.stockQuantity = qtyError
+    const priceError = validatePrice(price)
+    if (priceError) errors.price = priceError
     return errors
   }
 

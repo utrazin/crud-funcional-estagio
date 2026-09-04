@@ -15,6 +15,7 @@ import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { PageLoader } from '../components/shared/PageLoader'
 import { UploadIcon, DownloadIcon, ChevronDownIcon, XIcon } from '../components/shared/icons'
+import { usePersistedState } from '../utils/usePersistedState'
 import '../styles/table.css'
 import './ReportsPage.css'
 
@@ -33,10 +34,10 @@ export function ReportsPage() {
   const { toast, showSuccess, showError, clearToast } = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [clients, setClients] = useState<Client[]>([])
-  const [from, setFrom] = useState(firstDayOfMonth())
-  const [to, setTo] = useState(today())
-  const [productIds, setProductIds] = useState<string[]>([])
-  const [clientIds, setClientIds] = useState<string[]>([])
+  const [from, setFrom] = usePersistedState('reportsPage.from', firstDayOfMonth())
+  const [to, setTo] = usePersistedState('reportsPage.to', today())
+  const [productIds, setProductIds] = usePersistedState<string[]>('reportsPage.productIds', [])
+  const [clientIds, setClientIds] = usePersistedState<string[]>('reportsPage.clientIds', [])
   const [sales, setSales] = useState<Sale[]>([])
   const [summary, setSummary] = useState({
     totalVendas: 0,

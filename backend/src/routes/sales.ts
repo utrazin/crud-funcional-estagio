@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express'
 import { SaleController } from '../controllers/SaleController'
+import { AppError } from '../utils/validation'
 
 const router = Router()
 const controller = new SaleController()
+
+function handleError(err: any, res: Response, fallback: string) {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message })
+  }
+  res.status(500).json({ error: err.message || fallback })
+}
 
 // Listar vendas (com busca opcional por nome de produto ou cliente)
 router.get('/', async (req: Request, res: Response) => {
@@ -11,7 +19,7 @@ router.get('/', async (req: Request, res: Response) => {
     const sales = term ? await controller.buscar(term) : await controller.listar()
     res.json(sales)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao listar vendas' })
+    handleError(err, res, 'Erro ao listar vendas')
   }
 })
 
@@ -22,11 +30,7 @@ router.post('/', async (req: Request, res: Response) => {
     const sale = await controller.registrar(productId, { clientId, clientName }, quantity, salePrice, saleDate)
     res.status(201).json(sale)
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404
-      : err.message.includes('insuficiente') ? 422
-      : err.message.includes('obrigatório') || err.message.includes('deve ser') ? 400
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao registrar venda' })
+    handleError(err, res, 'Erro ao registrar venda')
   }
 })
 
@@ -37,12 +41,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const sale = await controller.atualizar(req.params.id, productId, clientId, quantity, salePrice, saleDate)
     res.json(sale)
   } catch (err: any) {
-    const status = err.message.includes('não encontrada') ? 404
-      : err.message.includes('não pode ser editada') ? 409
-      : err.message.includes('não encontrado') ? 404
-      : err.message.includes('insuficiente') ? 422
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao atualizar venda' })
+    handleError(err, res, 'Erro ao atualizar venda')
   }
 })
 
@@ -52,10 +51,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     await controller.cancelar(req.params.id)
     res.status(204).send()
   } catch (err: any) {
-    const status = err.message.includes('não encontrada') ? 404
-      : err.message.includes('já foi cancelada') ? 409
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao cancelar venda' })
+    handleError(err, res, 'Erro ao cancelar venda')
   }
 })
 

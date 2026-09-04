@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express'
 import { ClientController } from '../controllers/ClientController'
+import { AppError } from '../utils/validation'
 
 const router = Router()
 const controller = new ClientController()
+
+function handleError(err: any, res: Response, fallback: string) {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message })
+  }
+  res.status(500).json({ error: err.message || fallback })
+}
 
 // Listar todos os clientes
 router.get('/', async (_req: Request, res: Response) => {
@@ -10,7 +18,7 @@ router.get('/', async (_req: Request, res: Response) => {
     const clients = await controller.listar()
     res.json(clients)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao listar clientes' })
+    handleError(err, res, 'Erro ao listar clientes')
   }
 })
 
@@ -21,7 +29,7 @@ router.get('/buscar', async (req: Request, res: Response) => {
     const clients = await controller.buscarPorNome(name)
     res.json(clients)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao buscar clientes' })
+    handleError(err, res, 'Erro ao buscar clientes')
   }
 })
 
@@ -31,8 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const client = await controller.detalhes(req.params.id)
     res.json(client)
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404 : 500
-    res.status(status).json({ error: err.message || 'Erro ao buscar cliente' })
+    handleError(err, res, 'Erro ao buscar cliente')
   }
 })
 
@@ -43,8 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
     const client = await controller.criar(name, cellphone)
     res.status(201).json(client)
   } catch (err: any) {
-    const status = err.message === 'Nome é obrigatório' ? 400 : 500
-    res.status(status).json({ error: err.message || 'Erro ao criar cliente' })
+    handleError(err, res, 'Erro ao criar cliente')
   }
 })
 
@@ -55,11 +61,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const client = await controller.atualizar(req.params.id, name, cellphone)
     res.json(client)
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404
-      : err.message.includes('não está disponível') ? 409
-      : err.message.includes('obrigatório') ? 400
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao atualizar cliente' })
+    handleError(err, res, 'Erro ao atualizar cliente')
   }
 })
 
@@ -69,10 +71,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     await controller.excluir(req.params.id)
     res.status(204).send()
   } catch (err: any) {
-    const status = err.message.includes('não encontrado') ? 404
-      : err.message.includes('já foi excluído') ? 409
-      : 500
-    res.status(status).json({ error: err.message || 'Erro ao excluir cliente' })
+    handleError(err, res, 'Erro ao excluir cliente')
   }
 })
 
