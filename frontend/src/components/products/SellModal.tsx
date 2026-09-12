@@ -44,7 +44,7 @@ export function SellModal({ product, onClose, onSold, onError }: SellModalProps)
 
   const quantityNumber = Number(quantity)
   const quantityError = validateSaleQuantity(quantity, product.stockQuantity)
-  const priceError = validatePrice(salePrice, product.price)
+  const priceError = validatePrice(salePrice)
   const buyerError = selectedClient ? undefined : validateClientName(buyerName)
   const dateError = validateRequired(saleDate, 'Data da venda é obrigatória')
   const hasError = !!quantityError || !!priceError || !!buyerError || !!dateError

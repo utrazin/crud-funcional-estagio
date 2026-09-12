@@ -42,8 +42,8 @@ export const reportsApi = {
   },
 
   /** Dispara o download do relatório exportado — navegação direta, o cookie httpOnly é enviado normalmente. */
-  exportarUrl: (filters: ReportFilters, format: 'xlsx' | 'csv') =>
-    `${API_BASE}/reports/sales/export?${buildQuery(filters)}&format=${format}`,
+  exportarUrl: (filters: ReportFilters) =>
+    `${API_BASE}/reports/sales/export?${buildQuery(filters)}`,
 
   importTemplateUrl: () => `${API_BASE}/reports/sales/import-template`,
 }

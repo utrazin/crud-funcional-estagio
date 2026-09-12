@@ -14,7 +14,7 @@ import { CancelSaleModal } from '../components/shared/CancelSaleModal'
 import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { PageLoader } from '../components/shared/PageLoader'
-import { UploadIcon, DownloadIcon, ChevronDownIcon, XIcon } from '../components/shared/icons'
+import { UploadIcon, DownloadIcon, XIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 import '../styles/table.css'
 import './ReportsPage.css'
@@ -47,13 +47,11 @@ export function ReportsPage() {
     totalClientes: 0,
     geradoEm: '',
   })
-  const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [cancelingSale, setCancelingSale] = useState<{ id: string; fields: { label: string; value: string }[] } | null>(null)
   const [initialLoading, setInitialLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [importing, setImporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const exportMenuRef = useRef<HTMLDivElement>(null)
 
   const filters = { from, to, productIds, clientIds }
 
@@ -81,19 +79,8 @@ export function ReportsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
-        setExportMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  function handleExport(format: 'xlsx' | 'csv') {
-    setExportMenuOpen(false)
-    window.open(reportsApi.exportarUrl(filters, format), '_blank')
+  function handleExport() {
+    window.open(reportsApi.exportarUrl(filters), '_blank')
   }
 
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -109,7 +96,7 @@ export function ReportsPage() {
       }
       loadData()
     } catch (err) {
-      showError(err instanceof Error ? err.message : 'Erro ao importar planilha')
+      showError(err instanceof Error ? err.message : 'Erro ao importar arquivo')
     } finally {
       setImporting(false)
       e.target.value = ''
@@ -124,36 +111,19 @@ export function ReportsPage() {
         title="Relatórios Financeiros"
         actions={
           <>
-            {/* <input
+            <input
               ref={fileInputRef}
               type="file"
-              accept=".csv,.xlsx"
+              accept=".csv"
               style={{ display: 'none' }}
               onChange={handleImportFile}
             />
             <Button variant="secondary" leadingIcon={<UploadIcon />} onClick={() => fileInputRef.current?.click()} loading={importing}>
-              Importar
+              Importar CSV
             </Button>
-            <div className="reports-page__export-wrapper" ref={exportMenuRef}>
-              <Button
-                variant="secondary"
-                leadingIcon={<DownloadIcon />}
-                onClick={() => setExportMenuOpen((v) => !v)}
-              >
-                Exportar Relatório
-                <ChevronDownIcon style={{ width: 14, height: 14, marginLeft: 4 }} />
-              </Button>
-              {exportMenuOpen && (
-                <div className="reports-page__export-menu">
-                  <button className="reports-page__export-option text-body-default" onClick={() => handleExport('xlsx')}>
-                    Excel (.xlsx)
-                  </button>
-                  <button className="reports-page__export-option text-body-default" onClick={() => handleExport('csv')}>
-                    CSV
-                  </button>
-                </div>
-              )}
-            </div> */}
+            <Button variant="secondary" leadingIcon={<DownloadIcon />} onClick={handleExport}>
+              Exportar CSV
+            </Button>
           </>
         }
       />

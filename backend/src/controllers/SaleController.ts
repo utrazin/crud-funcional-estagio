@@ -23,7 +23,7 @@ export class SaleController {
       where: { deletedAt: null },
       orderBy: { saleDate: 'desc' },
       include: {
-        product: { select: { id: true, name: true, price: true, deletedAt: true } },
+        product: { select: { id: true, name: true, price: true, stockQuantity: true, deletedAt: true } },
         client: { select: { id: true, name: true, cellphone: true, deletedAt: true } },
       },
     })
@@ -44,7 +44,7 @@ export class SaleController {
       },
       orderBy: { saleDate: 'desc' },
       include: {
-        product: { select: { id: true, name: true, price: true, deletedAt: true } },
+        product: { select: { id: true, name: true, price: true, stockQuantity: true, deletedAt: true } },
         client: { select: { id: true, name: true, cellphone: true, deletedAt: true } },
       },
     })
@@ -84,9 +84,6 @@ export class SaleController {
     const product = await this.productService.buscarPorId(productId)
     if (!product || product.deletedAt) throw new NotFoundError('Produto não encontrado')
     if (product.stockQuantity < quantity) throw new UnprocessableError('Estoque insuficiente')
-    if (salePrice < product.price) {
-      throw new ValidationError(`Valor unitário não pode ser menor que o preço do produto (R$ ${product.price.toFixed(2)})`)
-    }
 
     const totalPrice = this.calcularValorTotal(quantity, salePrice)
 
@@ -142,9 +139,6 @@ export class SaleController {
     const newProduct = await this.productService.buscarPorId(productId)
     if (!newProduct || newProduct.deletedAt) throw new NotFoundError('Produto não encontrado')
     if (newProduct.stockQuantity < quantity) throw new UnprocessableError('Estoque insuficiente')
-    if (salePrice < newProduct.price) {
-      throw new ValidationError(`Valor unitário não pode ser menor que o preço do produto (R$ ${newProduct.price.toFixed(2)})`)
-    }
 
     const totalPrice = this.calcularValorTotal(quantity, salePrice)
 

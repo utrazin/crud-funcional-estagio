@@ -43,11 +43,8 @@ export function validateSaleQuantity(raw: string, max?: number): string | undefi
   return undefined
 }
 
-export function validatePrice(value: number, minValue?: number): string | undefined {
+export function validatePrice(value: number): string | undefined {
   if (!value || value <= 0) return 'Informe um valor maior que zero'
-  if (minValue !== undefined && value < minValue) {
-    return `Mínimo ${minValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
-  }
   return undefined
 }
 

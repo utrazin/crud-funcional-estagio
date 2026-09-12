@@ -1,12 +1,13 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
-import { BoxIcon, ShoppingCartIcon, UsersIcon, BarChartIcon, LogOutIcon } from './icons'
+import { BoxIcon, ShoppingCartIcon, UsersIcon, BarChartIcon, DollarSignIcon, LogOutIcon } from './icons'
 import './Sidebar.css'
 
 const NAV_ITEMS = [
   { to: '/produtos', label: 'Produtos', icon: ShoppingCartIcon },
   { to: '/relatorios', label: 'Relatórios Financeiros', icon: BarChartIcon },
   { to: '/clientes', label: 'Clientes', icon: UsersIcon },
+  { to: '/vendas', label: 'Vendas', icon: DollarSignIcon },
 ]
 
 export function Sidebar() {

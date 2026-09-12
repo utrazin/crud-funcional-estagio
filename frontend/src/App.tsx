@@ -7,6 +7,7 @@ import { ProductDetailPage } from './pages/ProductDetailPage'
 import { ClientsPage } from './pages/ClientsPage'
 import { ClientDetailPage } from './pages/ClientDetailPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { VendasPage } from './pages/VendasPage'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { AppLayout } from './layouts/AppLayout'
 
@@ -28,6 +29,7 @@ export function App() {
       <Route path="/clientes" element={<Protected><ClientsPage /></Protected>} />
       <Route path="/clientes/:id" element={<Protected><ClientDetailPage /></Protected>} />
       <Route path="/relatorios" element={<Protected><ReportsPage /></Protected>} />
+      <Route path="/vendas" element={<Protected><VendasPage /></Protected>} />
       <Route path="/" element={<Navigate to="/produtos" replace />} />
       <Route path="*" element={<Navigate to="/produtos" replace />} />
     </Routes>

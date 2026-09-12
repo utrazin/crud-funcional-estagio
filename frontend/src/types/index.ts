@@ -37,6 +37,7 @@ export interface Sale {
     id: string
     name: string
     price: number
+    stockQuantity: number
     deletedAt: string | null
   }
   client?: {

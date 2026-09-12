@@ -1,4 +1,3 @@
-import ExcelJS from 'exceljs'
 import { parse } from 'csv-parse/sync'
 import { stringify } from 'csv-stringify/sync'
 import { prisma } from '../prisma'
@@ -69,7 +68,7 @@ export class ReportController {
     }
   }
 
-  async exportarVendas(filters: ReportFilters, format: 'xlsx' | 'csv') {
+  async exportarVendas(filters: ReportFilters) {
     const sales = await this.listarVendas(filters)
     const rows = sales.map((s) => ({
       Produto: s.product.name,
@@ -80,29 +79,8 @@ export class ReportController {
       Comprador: s.client?.name ?? 'Cliente removido',
     }))
 
-    if (format === 'csv') {
-      const csv = stringify(rows, { header: true })
-      return { buffer: Buffer.from(csv, 'utf-8'), contentType: 'text/csv; charset=utf-8', filename: 'relatorio-vendas.csv' }
-    }
-
-    const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet('Vendas')
-    sheet.columns = [
-      { header: 'Produto', key: 'Produto', width: 30 },
-      { header: 'Quantidade', key: 'Quantidade', width: 14 },
-      { header: 'Valor Unitário', key: 'Valor Unitário', width: 16 },
-      { header: 'Valor Total', key: 'Valor Total', width: 16 },
-      { header: 'Data', key: 'Data', width: 14 },
-      { header: 'Comprador', key: 'Comprador', width: 24 },
-    ]
-    sheet.addRows(rows)
-    const buffer = await workbook.xlsx.writeBuffer()
-
-    return {
-      buffer: Buffer.from(buffer),
-      contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      filename: 'relatorio-vendas.xlsx',
-    }
+    const csv = stringify(rows, { header: true })
+    return { buffer: Buffer.from(csv, 'utf-8'), contentType: 'text/csv; charset=utf-8', filename: 'relatorio-vendas.csv' }
   }
 
   gerarModeloImportacao() {
@@ -110,9 +88,8 @@ export class ReportController {
     return Buffer.from(csv, 'utf-8')
   }
 
-  async importarVendas(buffer: Buffer, mimetype: string, originalname: string) {
-    const isExcel = mimetype.includes('spreadsheet') || originalname.toLowerCase().endsWith('.xlsx')
-    const rows = isExcel ? await this.parseExcel(buffer) : this.parseCsv(buffer)
+  async importarVendas(buffer: Buffer) {
+    const rows = this.parseCsv(buffer)
 
     const imported: string[] = []
     const skipped: { row: number; reason: string }[] = []
@@ -153,27 +130,5 @@ export class ReportController {
 
   private parseCsv(buffer: Buffer): Record<string, any>[] {
     return parse(buffer, { columns: true, skip_empty_lines: true, trim: true })
-  }
-
-  private async parseExcel(buffer: Buffer): Promise<Record<string, any>[]> {
-    const workbook = new ExcelJS.Workbook()
-    await workbook.xlsx.load(buffer as any)
-    const sheet = workbook.worksheets[0]
-    if (!sheet) return []
-
-    const headerRow = sheet.getRow(1).values as any[]
-    const headers = headerRow.slice(1).map((h) => String(h).trim())
-
-    const rows: Record<string, any>[] = []
-    sheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return
-      const values = row.values as any[]
-      const record: Record<string, any> = {}
-      headers.forEach((header, idx) => {
-        record[header] = values[idx + 1]
-      })
-      rows.push(record)
-    })
-    return rows
   }
 }

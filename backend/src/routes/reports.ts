@@ -4,7 +4,17 @@ import { ReportController, ReportFilters } from '../controllers/ReportController
 
 const router = Router()
 const controller = new ReportController()
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } })
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.toLowerCase().endsWith('.csv')) {
+      cb(null, true)
+    } else {
+      cb(new Error('Apenas arquivos CSV são aceitos'))
+    }
+  },
+})
 
 function parseIdList(value: unknown): string[] | undefined {
   if (!value || typeof value !== 'string') return undefined
@@ -41,11 +51,10 @@ router.get('/summary', async (req: Request, res: Response) => {
   }
 })
 
-// Exportar relatório (Excel ou CSV)
+// Exportar relatório em CSV
 router.get('/sales/export', async (req: Request, res: Response) => {
   try {
-    const format = (req.query.format as string) === 'csv' ? 'csv' : 'xlsx'
-    const { buffer, contentType, filename } = await controller.exportarVendas(getFilters(req), format)
+    const { buffer, contentType, filename } = await controller.exportarVendas(getFilters(req))
     res.setHeader('Content-Type', contentType)
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
     res.send(buffer)
@@ -54,7 +63,7 @@ router.get('/sales/export', async (req: Request, res: Response) => {
   }
 })
 
-// Baixar modelo de planilha para importação
+// Baixar modelo de CSV para importação
 router.get('/sales/import-template', (_req: Request, res: Response) => {
   const buffer = controller.gerarModeloImportacao()
   res.setHeader('Content-Type', 'text/csv; charset=utf-8')
@@ -62,16 +71,16 @@ router.get('/sales/import-template', (_req: Request, res: Response) => {
   res.send(buffer)
 })
 
-// Importar vendas de uma planilha (CSV ou Excel)
+// Importar vendas de um CSV
 router.post('/sales/import', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Nenhum arquivo enviado' })
     }
-    const result = await controller.importarVendas(req.file.buffer, req.file.mimetype, req.file.originalname)
+    const result = await controller.importarVendas(req.file.buffer)
     res.json(result)
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Erro ao importar vendas' })
+    res.status(err.message?.includes('Apenas arquivos CSV') ? 400 : 500).json({ error: err.message || 'Erro ao importar vendas' })
   }
 })
 
