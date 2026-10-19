@@ -13,9 +13,10 @@ import { IconButton } from '../components/shared/IconButton'
 import { CancelSaleModal } from '../components/shared/CancelSaleModal'
 import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
-import { PageLoader } from '../components/shared/PageLoader'
+import { Skeleton } from '../components/shared/Skeleton'
 import { UploadIcon, DownloadIcon, XIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
+import { validateSaleDate } from '../utils/validators'
 import '../styles/table.css'
 import './ReportsPage.css'
 
@@ -24,10 +25,11 @@ const currency = (value: number) =>
 
 function firstDayOfMonth() {
   const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
 }
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export function ReportsPage() {
@@ -38,8 +40,10 @@ export function ReportsPage() {
   const [to, setTo] = usePersistedState('reportsPage.to', today())
   const [productIds, setProductIds] = usePersistedState<string[]>('reportsPage.productIds', [])
   const [clientIds, setClientIds] = usePersistedState<string[]>('reportsPage.clientIds', [])
-  const [sales, setSales] = useState<Sale[]>([])
-  const [summary, setSummary] = useState({
+  const reportCacheKey = `stockfinance.resource.reports.${JSON.stringify({ from, to, productIds, clientIds })}`
+  const cached = (() => { try { return JSON.parse(sessionStorage.getItem(reportCacheKey) || 'null') as { sales: Sale[]; summary: { totalVendas: number; faturamentoTotal: number; totalProdutosVendidos: number; ticketMedio: number; totalClientes: number; geradoEm: string } } | null } catch { return null } })()
+  const [sales, setSales] = useState<Sale[]>(cached?.sales ?? [])
+  const [summary, setSummary] = useState(cached?.summary ?? {
     totalVendas: 0,
     faturamentoTotal: 0,
     totalProdutosVendidos: 0,
@@ -48,14 +52,16 @@ export function ReportsPage() {
     geradoEm: '',
   })
   const [cancelingSale, setCancelingSale] = useState<{ id: string; fields: { label: string; value: string }[] } | null>(null)
-  const [initialLoading, setInitialLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(!cached)
   const [refreshing, setRefreshing] = useState(false)
   const [importing, setImporting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const filters = { from, to, productIds, clientIds }
+  const filterError = (from && validateSaleDate(from)) || (to && validateSaleDate(to)) || (from && to && from > to ? 'A data inicial deve ser anterior à final' : '')
 
   async function loadData() {
+    if (filterError) { showError(filterError); return }
     setRefreshing(true)
     try {
       const [salesData, summaryData] = await Promise.all([
@@ -64,6 +70,7 @@ export function ReportsPage() {
       ])
       setSales(salesData)
       setSummary(summaryData)
+      sessionStorage.setItem(reportCacheKey, JSON.stringify({ sales: salesData, summary: summaryData }))
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Erro ao carregar relatório')
     } finally {
@@ -80,6 +87,7 @@ export function ReportsPage() {
   }, [])
 
   function handleExport() {
+    if (filterError) return
     window.open(reportsApi.exportarUrl(filters), '_blank')
   }
 
@@ -135,24 +143,26 @@ export function ReportsPage() {
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: 160 }} />
           <CheckboxMultiSelect
             placeholder="Todos os produtos"
-            options={products.map((p) => ({ id: p.id, label: p.name }))}
+            options={[...products].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((p) => ({ id: p.id, label: p.name }))}
             selected={productIds}
             onChange={setProductIds}
             style={{ width: 220 }}
           />
           <CheckboxMultiSelect
             placeholder="Todos os clientes"
-            options={clients.map((c) => ({ id: c.id, label: c.name }))}
+            options={[...clients].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((c) => ({ id: c.id, label: c.name }))}
             selected={clientIds}
             onChange={setClientIds}
             style={{ width: 220 }}
           />
         </div>
-        <Button onClick={loadData} loading={refreshing}>Atualizar</Button>
+        <Button onClick={loadData} loading={refreshing} disabled={!!filterError}>Atualizar</Button>
       </div>
 
+      {filterError && <p role="alert" style={{ color: 'var(--color-text-danger)' }}>{filterError}</p>}
+
       {initialLoading ? (
-        <PageLoader label="Carregando relatório..." />
+        <Skeleton rows={5} metrics={5} />
       ) : (
         <>
           <KpiRow>
@@ -180,12 +190,12 @@ export function ReportsPage() {
               <tbody>
                 {sales.map((sale) => (
                   <tr key={sale.id}>
-                    <td className="text-body-medium">{sale.product.name}</td>
-                    <td className="text-body-default">{sale.client?.name ?? 'Cliente removido'}</td>
-                    <td className="text-body-default">{sale.quantity}</td>
-                    <td className="text-body-medium">{currency(sale.totalPrice)}</td>
-                    <td className="text-body-default">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td>
-                    <td>
+                    <td data-label="Produto" className="text-body-medium">{sale.product.name}</td>
+                    <td data-label="Cliente" className="text-body-default">{sale.client?.name ?? 'Cliente removido'}</td>
+                    <td data-label="Quantidade" className="text-body-default">{sale.quantity}</td>
+                    <td data-label="Valor" className="text-body-medium">{currency(sale.totalPrice)}</td>
+                    <td data-label="Data" className="text-body-default">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td>
+                    <td data-label="Ações">
                       <div className="table-ds__actions">
                         <IconButton
                           icon={<XIcon />}

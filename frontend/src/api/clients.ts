@@ -14,6 +14,7 @@ export interface ClientDetail extends Client {
 
 export const clientsApi = {
   listar: () => api.get<Client[]>('/clients'),
+  paraVenda: () => api.get<Client[]>('/clients/para-venda'),
 
   buscarPorNome: (name: string) =>
     api.get<Client[]>(`/clients/buscar?name=${encodeURIComponent(name)}`),

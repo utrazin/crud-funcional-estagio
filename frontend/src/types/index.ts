@@ -20,6 +20,7 @@ export interface Client {
   createdAt: string
   updatedAt: string
   deletedAt: string | null
+  lastPurchaseAt?: string | null
 }
 
 export interface Sale {

@@ -28,12 +28,12 @@ export function ClientTable({ clients }: ClientTableProps) {
         <tbody>
           {clients.map((client) => (
             <tr key={client.id}>
-              <td>
+              <td data-label="Cliente">
                 <span className="text-body-medium">{client.name}</span>
               </td>
-              <td className="text-body-default">{client.totalProductsPurchased}</td>
-              <td className="text-body-medium">{currency(client.totalSpent)}</td>
-              <td>
+              <td data-label="Produtos comprados" className="text-body-default">{client.totalProductsPurchased}</td>
+              <td data-label="Total gasto" className="text-body-medium">{currency(client.totalSpent)}</td>
+              <td data-label="Ações">
                 <div className="table-ds__actions">
                   <IconButton
                     icon={<EyeIcon />}

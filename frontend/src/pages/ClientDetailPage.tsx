@@ -1,221 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Client } from '../types'
 import type { ClientDetail } from '../api/clients'
 import { clientsApi } from '../api/clients'
-import { Badge } from '../components/shared/Badge'
-import { IconButton } from '../components/shared/IconButton'
+import { Modal } from '../components/shared/Modal'
+import { Skeleton } from '../components/shared/Skeleton'
+import { Button } from '../components/shared/Button'
 import { Input } from '../components/shared/Input'
+import { ReadOnlyFields } from '../components/shared/ReadOnlyFields'
+import { IconButton } from '../components/shared/IconButton'
 import { CancelSaleModal } from '../components/shared/CancelSaleModal'
 import { DeleteClientModal } from '../components/clients/DeleteClientModal'
-import { Toast } from '../components/shared/Toast'
-import { useToast } from '../components/shared/useToast'
-import { PageLoader } from '../components/shared/PageLoader'
-import { ChevronLeftIcon, PencilIcon, TrashIcon, CheckIcon, XIcon } from '../components/shared/icons'
-import { maskPhone } from '../utils/masks'
+import { XIcon } from '../components/shared/icons'
 import { validateClientName, validatePhone } from '../utils/validators'
+import { maskPhone } from '../utils/masks'
+import { invalidateResources } from '../utils/useSessionResource'
 import '../styles/table.css'
-import './ClientDetailPage.css'
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-const formatDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
-
+const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+function readCachedClient(id?: string): ClientDetail | null { try { return JSON.parse(sessionStorage.getItem(`stockfinance.resource.client-detail.${id}`) || 'null') as ClientDetail | null } catch { return null } }
 export function ClientDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [client, setClient] = useState<ClientDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const { toast, showSuccess, showError, clearToast } = useToast()
-  const [cancelingSale, setCancelingSale] = useState<{ id: string; fields: { label: string; value: string }[] } | null>(null)
-  const [deletingClient, setDeletingClient] = useState<Client | null>(null)
-
+  const close = () => navigate('/clientes')
+  const [client, setClient] = useState<ClientDetail | null>(() => readCachedClient(id))
+  const [loading, setLoading] = useState(() => !readCachedClient(id))
+  const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
-  const [draftName, setDraftName] = useState('')
-  const [draftPhone, setDraftPhone] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
   const [saving, setSaving] = useState(false)
-
-  function reload() {
-    if (!id) return
-    clientsApi
-      .detalhes(id)
-      .then(setClient)
-      .catch(() => setClient(null))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    setLoading(true)
-    reload()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
-
-  if (loading) return <PageLoader label="Carregando cliente..." />
-  if (!client) return <p className="text-body-default">Cliente não encontrado.</p>
-
-  const nameError = validateClientName(draftName)
-  const phoneError = validatePhone(draftPhone)
-  const hasError = !!nameError || !!phoneError
-
-  function startEdit() {
-    if (!client) return
-    setDraftName(client.name)
-    setDraftPhone(client.cellphone ?? '')
-    setEditing(true)
-  }
-
-  async function handleConfirmEdit() {
-    if (!client || hasError) return
-    setSaving(true)
-    try {
-      await clientsApi.atualizar(client.id, { name: draftName.trim(), cellphone: draftPhone })
-      setEditing(false)
-      showSuccess('Cliente atualizado com sucesso!')
-      reload()
-    } catch (err) {
-      showError(err instanceof Error ? err.message : 'Erro ao atualizar cliente')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <>
-      <Toast message={toast.message} type={toast.type} onClear={clearToast} />
-
-      <button className="client-detail-page__back" onClick={() => navigate('/clientes')}>
-        <ChevronLeftIcon />
-        <span className="text-body-medium">Voltar para Clientes</span>
-      </button>
-
-      <div className="client-detail-page__header">
-        {editing ? (
-          <div className="client-detail-page__edit-fields">
-            <Input
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              error={nameError}
-              placeholder="Nome do cliente"
-              autoFocus
-              style={{ minWidth: 220 }}
-            />
-            <Input
-              value={draftPhone}
-              onChange={(e) => setDraftPhone(maskPhone(e.target.value))}
-              error={phoneError}
-              placeholder="(11) 98765-4321"
-              style={{ minWidth: 200 }}
-            />
-          </div>
-        ) : (
-          <div>
-            <h1 className="text-page-title">{client.name}</h1>
-            {client.cellphone && (
-              <p className="text-body-large" style={{ color: 'var(--color-text-secondary)' }}>{client.cellphone}</p>
-            )}
-          </div>
-        )}
-
-        <div className="client-detail-page__header-actions">
-          {editing ? (
-            <>
-              <IconButton icon={<CheckIcon />} variant="success" ariaLabel="Confirmar" onClick={handleConfirmEdit} disabled={hasError} loading={saving} />
-              <IconButton icon={<XIcon />} variant="danger" ariaLabel="Cancelar" onClick={() => setEditing(false)} disabled={saving} />
-            </>
-          ) : (
-            <>
-              <IconButton icon={<PencilIcon />} ariaLabel="Editar" onClick={startEdit} />
-              <IconButton icon={<TrashIcon />} variant="danger" ariaLabel="Excluir" onClick={() => setDeletingClient(client)} />
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="client-detail-page__summary">
-        <div className="client-detail-page__metric">
-          <span className="text-label-small" style={{ color: 'var(--color-text-tertiary)' }}>Total de Compras</span>
-          <span className="text-numeric-large">{client.totalPurchases}</span>
-        </div>
-        <div className="client-detail-page__metric">
-          <span className="text-label-small" style={{ color: 'var(--color-text-tertiary)' }}>Produtos Comprados</span>
-          <span className="text-numeric-large">{client.totalProductsPurchased}</span>
-        </div>
-        <div className="client-detail-page__metric">
-          <span className="text-label-small" style={{ color: 'var(--color-text-success)' }}>Valor Total Gasto</span>
-          <span className="text-numeric-large" style={{ color: 'var(--green-600)' }}>
-            {currency(client.totalSpent)}
-          </span>
-        </div>
-      </div>
-
-      <div className="client-detail-page__section-header">
-        <h2 className="text-section-heading">Histórico de Compras</h2>
-        <Badge>{client.vendas.length} compras realizadas</Badge>
-      </div>
-
-      <div className="table-ds__container">
-        <table className="table-ds">
-          <thead>
-            <tr>
-              <th className="text-label-small">Data</th>
-              <th className="text-label-small">Produto</th>
-              <th className="text-label-small">Quantidade</th>
-              <th className="text-label-small">Valor Total</th>
-              <th className="text-label-small">Valor Unitário</th>
-              <th className="text-label-small" />
-            </tr>
-          </thead>
-          <tbody>
-            {client.vendas.map((sale) => (
-              <tr key={sale.id}>
-                <td className="text-body-default">{formatDate(sale.saleDate)}</td>
-                <td className="text-body-medium">{sale.produto}</td>
-                <td className="text-body-default">{sale.quantity} unidades</td>
-                <td className="text-body-medium">{currency(sale.totalPrice)}</td>
-                <td className="text-body-default">{currency(sale.unitPrice)}</td>
-                <td>
-                  <div className="table-ds__actions">
-                    <IconButton
-                      icon={<XIcon />}
-                      variant="danger"
-                      ariaLabel="Cancelar Venda"
-                      onClick={() =>
-                        setCancelingSale({
-                          id: sale.id,
-                          fields: [
-                            { label: 'Produto', value: sale.produto },
-                            { label: 'Quantidade', value: `${sale.quantity} unidades` },
-                            { label: 'Valor Total', value: currency(sale.totalPrice) },
-                            { label: 'Comprador', value: client.name },
-                          ],
-                        })
-                      }
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <CancelSaleModal
-        sale={cancelingSale}
-        onClose={() => setCancelingSale(null)}
-        onCancelled={() => {
-          showSuccess('Venda cancelada com sucesso!')
-          reload()
-        }}
-        onError={showError}
-      />
-
-      <DeleteClientModal
-        client={deletingClient}
-        onClose={() => setDeletingClient(null)}
-        onDeleted={() => navigate('/clientes')}
-        onError={showError}
-      />
-    </>
-  )
+  const [deleting, setDeleting] = useState(false)
+  const [canceling, setCanceling] = useState<{ id: string; fields: { label: string; value: string }[] } | null>(null)
+  const reload = useCallback(async () => { if (!id) return; try { const next = await clientsApi.detalhes(id); setClient(next); sessionStorage.setItem(`stockfinance.resource.client-detail.${id}`, JSON.stringify(next)); setError('') } catch (err) { setError(err instanceof Error ? err.message : 'Cliente não encontrado') } finally { setLoading(false) } }, [id])
+  useEffect(() => { const cached = readCachedClient(id); setClient(cached); setLoading(!cached); void reload() }, [id, reload])
+  function openEdit() { if (!client) return; setName(client.name); setPhone(client.cellphone ?? ''); setEditing(true) }
+  async function save() { if (!client || validateClientName(name) || validatePhone(phone) || saving) return; setSaving(true); try { await clientsApi.atualizar(client.id, { name: name.trim(), cellphone: phone }); setEditing(false); invalidateResources('clients'); await reload() } catch (err) { setError(err instanceof Error ? err.message : 'Erro ao atualizar cliente') } finally { setSaving(false) } }
+  return <><Modal open title={client?.name ?? 'Detalhes do Cliente'} onClose={close} width={900} footer={<><Button variant="secondary" onClick={close}>Fechar</Button>{client && <><Button variant="secondary" onClick={openEdit}>Editar</Button><Button variant="danger" onClick={() => setDeleting(true)}>Excluir</Button></>}</>}>
+    {loading ? <Skeleton rows={4} metrics={3} /> : error ? <p role="alert">{error}</p> : client && <><ReadOnlyFields fields={[{ label: 'Telefone', value: client.cellphone ?? 'Não informado' }, { label: 'Compras', value: String(client.totalPurchases) }, { label: 'Produtos comprados', value: String(client.totalProductsPurchased) }, { label: 'Total gasto', value: currency(client.totalSpent) }]} /><h3>Histórico de compras</h3><div className="table-ds__container"><table className="table-ds"><thead><tr><th>Data</th><th>Produto</th><th>Quantidade</th><th>Valor total</th><th>Valor unitário</th><th>Ações</th></tr></thead><tbody>{client.vendas.map((sale) => <tr key={sale.id}><td data-label="Data">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td><td data-label="Produto">{sale.produto}</td><td data-label="Quantidade">{sale.quantity}</td><td data-label="Valor total">{currency(sale.totalPrice)}</td><td data-label="Valor unitário">{currency(sale.unitPrice)}</td><td data-label="Ações"><IconButton icon={<XIcon />} variant="danger" ariaLabel="Cancelar venda" onClick={() => setCanceling({ id: sale.id, fields: [{ label: 'Produto', value: sale.produto }, { label: 'Comprador', value: client.name }, { label: 'Quantidade', value: String(sale.quantity) }, { label: 'Valor', value: currency(sale.totalPrice) }] })} /></td></tr>)}</tbody></table></div></>}
+  </Modal><Modal open={editing} title="Editar Cliente" onClose={() => setEditing(false)} footer={<><Button variant="secondary" onClick={() => setEditing(false)}>Cancelar</Button><Button onClick={save} loading={saving}>Salvar</Button></>}><Input label="Nome *" value={name} onChange={(e) => setName(e.target.value)} error={validateClientName(name)} /><Input label="Telefone" value={phone} onChange={(e) => setPhone(maskPhone(e.target.value))} error={validatePhone(phone)} />{error && <p role="alert">{error}</p>}</Modal><DeleteClientModal client={deleting ? client : null} onClose={() => setDeleting(false)} onDeleted={() => { invalidateResources('clients'); close() }} onError={setError} /><CancelSaleModal sale={canceling} onClose={() => setCanceling(null)} onCancelled={() => { invalidateResources('products', 'clients', 'sales'); void reload() }} onError={setError} /></>
 }

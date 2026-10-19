@@ -10,7 +10,7 @@ import { IconButton } from '../components/shared/IconButton'
 import { CancelSaleModal } from '../components/shared/CancelSaleModal'
 import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
-import { PageLoader } from '../components/shared/PageLoader'
+import { Skeleton } from '../components/shared/Skeleton'
 import { SearchIcon, PencilIcon, XIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 import '../styles/table.css'
@@ -19,7 +19,7 @@ const currency = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function VendasPage() {
-  const { sales, loading, reload } = useSales()
+  const { sales, loading, reload, refreshing, error } = useSales()
   const { toast, showSuccess, showError, clearToast } = useToast()
   const [search, setSearch] = usePersistedState('vendasPage.search', '')
   const [editingSale, setEditingSale] = useState<Sale | null>(null)
@@ -55,14 +55,16 @@ export function VendasPage() {
         }
       />
 
-      <KpiRow>
+      {!loading && <KpiRow>
         <StatTile label="Total de Vendas" value={totalVendas} />
         <StatTile label="Ticket Médio" value={currency(ticketMedio)} />
         <StatTile label="Faturamento Total" value={currency(faturamentoTotal)} featured tone="green" />
-      </KpiRow>
+      </KpiRow>}
 
+      {error && <p role="alert">{error}</p>}
+      {refreshing && !loading && <span className="refresh-indicator">Atualizando vendas...</span>}
       {loading ? (
-        <PageLoader label="Carregando vendas..." />
+        <Skeleton />
       ) : (
         <div className="table-ds__container">
           <table className="table-ds">
@@ -79,12 +81,12 @@ export function VendasPage() {
             <tbody>
               {filtered.map((sale) => (
                 <tr key={sale.id}>
-                  <td className="text-body-medium">{sale.product.name}</td>
-                  <td className="text-body-default">{sale.client?.name ?? 'Cliente removido'}</td>
-                  <td className="text-body-default">{sale.quantity} unidades</td>
-                  <td className="text-body-medium">{currency(sale.totalPrice)}</td>
-                  <td className="text-body-default">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td>
-                  <td>
+                  <td data-label="Produto" className="text-body-medium">{sale.product.name}</td>
+                  <td data-label="Cliente" className="text-body-default">{sale.client?.name ?? 'Cliente removido'}</td>
+                  <td data-label="Quantidade" className="text-body-default">{sale.quantity} unidades</td>
+                  <td data-label="Valor total" className="text-body-medium">{currency(sale.totalPrice)}</td>
+                  <td data-label="Data" className="text-body-default">{new Date(sale.saleDate).toLocaleDateString('pt-BR')}</td>
+                  <td data-label="Ações">
                     <div className="table-ds__actions">
                       <IconButton
                         icon={<PencilIcon />}

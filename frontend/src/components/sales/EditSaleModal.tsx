@@ -5,9 +5,9 @@ import { Modal } from '../shared/Modal'
 import { Button } from '../shared/Button'
 import { Input } from '../shared/Input'
 import { CurrencyInput } from '../shared/CurrencyInput'
-import { Badge } from '../shared/Badge'
+import { QuickAdjust } from '../shared/QuickAdjust'
 import { ClientAutocomplete } from '../products/ClientAutocomplete'
-import { validateSaleQuantity, validatePrice, validateClientName, validateRequired } from '../../utils/validators'
+import { validateSaleQuantity, validatePrice, validateClientName, validateSaleDate } from '../../utils/validators'
 
 interface EditSaleModalProps {
   sale: Sale | null
@@ -73,7 +73,7 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
   const quantityError = validateSaleQuantity(quantity, availableStock)
   const priceError = validatePrice(salePrice)
   const buyerError = selectedClient ? undefined : (validateClientName(buyerName) || 'Selecione um cliente existente da lista')
-  const dateError = validateRequired(saleDate, 'Data da venda é obrigatória')
+  const dateError = validateSaleDate(saleDate)
   const hasError = !!quantityError || !!priceError || !!buyerError || !!dateError
 
   const total = (isNaN(quantityNumber) ? 0 : quantityNumber) * salePrice
@@ -118,8 +118,9 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
       </div>
 
       <div className="modal-field-row">
+        <div>
         <Input
-          label="Quantidade *"
+          label={`Quantidade * · Estoque disponível: ${availableStock}`}
           type="number"
           min={1}
           max={availableStock}
@@ -128,12 +129,17 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
           onChange={(e) => setQuantity(e.target.value)}
           error={quantityError}
         />
+        <QuickAdjust unit="1" onMinus={() => setQuantity(String(Math.max(1, quantityNumber - 1)))} onPlus={() => setQuantity(String(Math.min(availableStock, (quantityNumber || 0) + 1)))} minusDisabled={quantityNumber <= 1} plusDisabled={quantityNumber >= availableStock} />
+        </div>
+        <div>
         <CurrencyInput
           label="Valor da Venda (Unitário) *"
           value={salePrice}
           onChange={setSalePrice}
           error={priceError}
         />
+        <QuickAdjust unit="R$ 10" onMinus={() => setSalePrice((current) => Math.max(0.01, Math.round((current - 10) * 100) / 100))} onPlus={() => setSalePrice((current) => Math.round((current + 10) * 100) / 100)} minusDisabled={salePrice <= 0.01} />
+        </div>
       </div>
 
       <ClientAutocomplete
@@ -151,7 +157,6 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
         error={dateError}
       />
 
-      <Badge variant="success">Estoque Disponível: {availableStock} unidades</Badge>
 
       <div
         style={{

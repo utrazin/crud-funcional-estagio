@@ -36,6 +36,7 @@ export function validateStockQuantity(raw: string): string | undefined {
 }
 
 export function validateSaleQuantity(raw: string, max?: number): string | undefined {
+  if (max === 0) return 'Produto sem estoque'
   if (raw.trim() === '') return 'Quantidade é obrigatória'
   const qty = Number(raw)
   if (isNaN(qty) || !Number.isInteger(qty) || qty <= 0) return 'Informe um número inteiro maior que zero'
@@ -44,7 +45,15 @@ export function validateSaleQuantity(raw: string, max?: number): string | undefi
 }
 
 export function validatePrice(value: number): string | undefined {
-  if (!value || value <= 0) return 'Informe um valor maior que zero'
+  if (!Number.isFinite(value) || value <= 0) return 'Informe um valor maior que zero'
+  return undefined
+}
+
+export function validateSaleDate(value: string): string | undefined {
+  if (!value) return 'Data da venda é obrigatória'
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Data da venda inválida'
+  const date = new Date(`${value}T12:00:00`)
+  if (Number.isNaN(date.getTime()) || `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` !== value) return 'Data da venda inválida'
   return undefined
 }
 

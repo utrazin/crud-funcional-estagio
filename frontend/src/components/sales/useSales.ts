@@ -1,26 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
 import type { Sale } from '../../types'
 import { salesApi } from '../../api/sales'
-
+import { useSessionResource } from '../../utils/useSessionResource'
 export function useSales() {
-  const [sales, setSales] = useState<Sale[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const reload = useCallback(async () => {
-    setLoading(true)
-    try {
-      const data = await salesApi.listar()
-      setSales(data)
-    } catch {
-      setSales([])
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
-
-  return { sales, loading, reload }
+  const { data, ...rest } = useSessionResource<Sale[]>('sales', salesApi.listar, [])
+  return { sales: data, ...rest }
 }

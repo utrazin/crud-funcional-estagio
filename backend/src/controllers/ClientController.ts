@@ -11,6 +11,20 @@ export class ClientController {
     })
   }
 
+  async listarParaVenda() {
+    const clients = await this.clientRepository.findMany({
+      where: { deletedAt: null },
+      include: { sales: { where: { deletedAt: null }, orderBy: { saleDate: 'desc' }, take: 1, select: { saleDate: true } } },
+    })
+    return clients.map(({ sales, ...client }) => ({ ...client, lastPurchaseAt: sales[0]?.saleDate ?? null }))
+      .sort((a, b) => {
+        if (a.lastPurchaseAt && b.lastPurchaseAt) return b.lastPurchaseAt.getTime() - a.lastPurchaseAt.getTime() || b.createdAt.getTime() - a.createdAt.getTime()
+        if (a.lastPurchaseAt) return -1
+        if (b.lastPurchaseAt) return 1
+        return b.createdAt.getTime() - a.createdAt.getTime()
+      })
+  }
+
   async buscarPorNome(name: string) {
     if (!name || !name.trim()) {
       return this.listar()

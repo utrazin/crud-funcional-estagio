@@ -11,6 +11,9 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+function clearSessionData() {
+  Object.keys(sessionStorage).filter((key) => key.startsWith('stockfinance.') || key.startsWith('productsPage.') || key.startsWith('clientsPage.') || key.startsWith('vendasPage.') || key.startsWith('reportsPage.')).forEach((key) => sessionStorage.removeItem(key))
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -26,11 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const { user } = await authApi.login(email, password)
+    clearSessionData()
     setUser(user)
   }, [])
 
   const logout = useCallback(async () => {
     await authApi.logout()
+    clearSessionData()
     setUser(null)
   }, [])
 

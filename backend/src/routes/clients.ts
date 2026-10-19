@@ -23,6 +23,12 @@ router.get('/', async (_req: Request, res: Response) => {
 })
 
 // Buscar por nome
+router.get('/para-venda', async (_req: Request, res: Response) => {
+  try { res.json(await controller.listarParaVenda()) }
+  catch (err: any) { handleError(err, res, 'Erro ao listar clientes') }
+})
+
+// Buscar por nome
 router.get('/buscar', async (req: Request, res: Response) => {
   try {
     const name = (req.query.name as string) || ''

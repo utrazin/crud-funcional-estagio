@@ -112,6 +112,7 @@ export function assertRequiredId(value: unknown, fieldLabel: string): asserts va
 
 export function assertSaleDate(value: unknown): asserts value is string | Date {
   if (!value) throw new ValidationError('Data da venda é obrigatória')
+  if (typeof value === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new ValidationError('Data da venda inválida')
   const asDate = value instanceof Date ? value : new Date(value as string)
-  if (isNaN(asDate.getTime())) throw new ValidationError('Data da venda é inválida')
+  if (isNaN(asDate.getTime()) || (typeof value === 'string' && asDate.toISOString().slice(0, 10) !== value)) throw new ValidationError('Data da venda inválida')
 }

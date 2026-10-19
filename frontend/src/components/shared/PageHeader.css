@@ -16,3 +16,4 @@
   gap: var(--space-12);
   flex-wrap: wrap;
 }
+@media(max-width:700px){.page-header-ds{align-items:stretch}.page-header-ds__actions{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto}.page-header-ds__actions .input-ds__field{width:100%!important;min-width:0}.page-header-ds__actions .btn-ds{white-space:nowrap}}

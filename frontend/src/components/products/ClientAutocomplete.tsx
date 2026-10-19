@@ -1,102 +1,41 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Client } from '../../types'
 import { clientsApi } from '../../api/clients'
 import { Input } from '../shared/Input'
-import { IconButton } from '../shared/IconButton'
+import { DeleteClientModal } from '../clients/DeleteClientModal'
 import { PersonIcon, TrashIcon } from '../shared/icons'
+import { IconButton } from '../shared/IconButton'
+import { Skeleton } from '../shared/Skeleton'
 import './ClientAutocomplete.css'
 
-interface ClientAutocompleteProps {
-  value: string
-  onChange: (value: string) => void
-  onSelect: (client: Client | null) => void
-  error?: string
+interface Props { value: string; onChange: (value: string) => void; onSelect: (client: Client | null) => void; error?: string; layout?: 'side' | 'field' }
+let pendingClients: Promise<Client[]> | null = null
+function loadClientsOnce() {
+  if (!pendingClients) pendingClients = clientsApi.paraVenda().finally(() => { pendingClients = null })
+  return pendingClients
 }
-
-export function ClientAutocomplete({ value, onChange, onSelect, error }: ClientAutocompleteProps) {
-  const [suggestions, setSuggestions] = useState<Client[]>([])
+export function ClientAutocomplete({ value, onChange, onSelect, error, layout = 'field' }: Props) {
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [deleting, setDeleting] = useState<Client | null>(null)
+  const [message, setMessage] = useState('')
   useEffect(() => {
     let active = true
-    clientsApi
-      .buscarPorNome(value)
-      .then((results) => {
-        if (active) setSuggestions(results)
-      })
-      .catch(() => {
-        if (active) setSuggestions([])
-      })
-    return () => {
-      active = false
-    }
-  }, [value])
-
-  function handleSelect(client: Client) {
-    onChange(client.name)
-    onSelect(client)
-    setOpen(false)
-  }
-
-  async function handleDelete(e: React.MouseEvent, client: Client) {
-    e.stopPropagation()
-    try {
-      await clientsApi.excluir(client.id)
-      setSuggestions((prev) => prev.filter((c) => c.id !== client.id))
-    } catch {
-      // silencioso: falha ao excluir sugestão não deve travar o fluxo de venda
-    }
-  }
-
-  return (
-    <div className="client-autocomplete" ref={containerRef}>
-      <Input
-        label="Nome do Comprador *"
-        placeholder="Ex: João Tanana"
-        leadingIcon={<PersonIcon />}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value)
-          onSelect(null)
-          setOpen(true)
-        }}
-        onFocus={() => setOpen(true)}
-        autoComplete="off"
-        error={error}
-      />
-      {open && suggestions.length > 0 && (
-        <div className="client-autocomplete__dropdown">
-          {suggestions.map((client, i) => (
-            <div
-              key={client.id}
-              className={`client-autocomplete__option ${i === 0 ? 'client-autocomplete__option--first' : ''}`}
-              onClick={() => handleSelect(client)}
-            >
-              <span className="text-body-default">{client.name}</span>
-              {i > 0 && (
-                <IconButton
-                  icon={<TrashIcon />}
-                  variant="danger"
-                  ariaLabel={`Remover ${client.name} da lista`}
-                  onClick={(e) => handleDelete(e, client)}
-                  style={{ width: 24, height: 24 }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    loadClientsOnce().then((result) => { if (active) setClients(result) }).catch(() => { if (active) setMessage('Não foi possível carregar clientes') }).finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
+  const matches = useMemo(() => layout === 'side' && !open ? clients : clients.filter((client) => client.name.toLocaleLowerCase('pt-BR').includes(value.toLocaleLowerCase('pt-BR'))), [clients, value, layout, open])
+  function select(client: Client) { onChange(client.name); onSelect(client); setOpen(false); setMobileOpen(false) }
+  const list = <div className="client-picker__list">{loading ? <Skeleton rows={4} metrics={0} /> : matches.length ? matches.map((client) => <div className="client-picker__option" key={client.id}><button type="button" onClick={() => select(client)}><strong>{client.name}</strong><small>{client.lastPurchaseAt ? `Última compra: ${new Date(client.lastPurchaseAt).toLocaleDateString('pt-BR')}` : 'Sem compras'}</small></button><IconButton icon={<TrashIcon />} variant="danger" ariaLabel={`Excluir ${client.name}`} onClick={() => setDeleting(client)} /></div>) : <p>Nenhum cliente encontrado</p>}</div>
+  return <div className={`client-picker client-picker--${layout}`}>
+    {layout === 'side' && <aside className="client-picker__panel"><h3>Selecionar cliente</h3>{list}</aside>}
+    <div className="client-picker__field"><Input label="Nome do Comprador *" placeholder="Buscar ou cadastrar cliente" leadingIcon={<PersonIcon />} value={value} onChange={(e) => { onChange(e.target.value); onSelect(null); setOpen(true) }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)} autoComplete="off" error={error} />
+      {layout === 'side' && <button className="client-picker__mobile-toggle" type="button" onClick={() => setMobileOpen((current) => !current)} aria-expanded={mobileOpen}>Selecionar cliente {mobileOpen ? '−' : '+'}</button>}
+      {layout === 'side' ? mobileOpen && <div className="client-picker__mobile-list">{list}</div> : open && value && <div className="client-picker__dropdown">{list}</div>}
+      {message && <p role="alert" className="client-picker__error">{message}</p>}
     </div>
-  )
+    <DeleteClientModal client={deleting} onClose={() => setDeleting(null)} onDeleted={() => { setClients((previous) => previous.filter((client) => client.id !== deleting?.id)); if (deleting?.name === value) { onChange(''); onSelect(null) } }} onError={setMessage} />
+  </div>
 }

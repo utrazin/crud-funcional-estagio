@@ -25,6 +25,7 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
+.refresh-indicator{font-size:12px;color:var(--color-text-tertiary)}
 
 button, input, textarea {
   font-family: inherit;

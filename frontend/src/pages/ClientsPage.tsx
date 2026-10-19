@@ -9,7 +9,7 @@ import { Input } from '../components/shared/Input'
 import { Button } from '../components/shared/Button'
 import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
-import { PageLoader } from '../components/shared/PageLoader'
+import { Skeleton } from '../components/shared/Skeleton'
 import { SearchIcon, PlusIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 
@@ -17,7 +17,7 @@ const currency = (value: number) =>
   value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function ClientsPage() {
-  const { clients, loading, reload } = useClients()
+  const { clients, loading, reload, refreshing, error } = useClients()
   const { toast, showSuccess, showError, clearToast } = useToast()
   const [search, setSearch] = usePersistedState('clientsPage.search', '')
   const [createOpen, setCreateOpen] = useState(false)
@@ -59,13 +59,15 @@ export function ClientsPage() {
         }
       />
 
-      <KpiRow>
+      {!loading && <KpiRow>
         <StatTile label="Total de Clientes" value={totalClientes} />
         <StatTile label="Total de Compras" value={totalCompras} />
         <StatTile label="Valor Total Gasto" value={currency(valorTotalGasto)} featured tone="green" />
-      </KpiRow>
+      </KpiRow>}
 
-      {loading ? <PageLoader label="Carregando clientes..." /> : <ClientTable clients={filtered} />}
+      {error && <p role="alert">{error}</p>}
+      {refreshing && !loading && <span className="refresh-indicator">Atualizando clientes...</span>}
+      {loading ? <Skeleton /> : <ClientTable clients={filtered} />}
 
       <CreateClientModal
         open={createOpen}
