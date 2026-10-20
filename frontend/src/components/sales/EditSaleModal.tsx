@@ -47,16 +47,16 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
       setSelectedClient(
         sale.client
           ? {
-              id: sale.client.id,
-              name: sale.client.name,
-              cellphone: sale.client.cellphone,
-              totalPurchases: 0,
-              totalProductsPurchased: 0,
-              totalSpent: 0,
-              createdAt: '',
-              updatedAt: '',
-              deletedAt: sale.client.deletedAt,
-            }
+            id: sale.client.id,
+            name: sale.client.name,
+            cellphone: sale.client.cellphone,
+            totalPurchases: 0,
+            totalProductsPurchased: 0,
+            totalSpent: 0,
+            createdAt: '',
+            updatedAt: '',
+            deletedAt: sale.client.deletedAt,
+          }
           : null,
       )
       setSaleDate(toDateInputValue(sale.saleDate))
@@ -119,26 +119,26 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
 
       <div className="modal-field-row">
         <div>
-        <Input
-          label={`Quantidade * · Estoque disponível: ${availableStock}`}
-          type="number"
-          min={1}
-          max={availableStock}
-          step={1}
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          error={quantityError}
-        />
-        <QuickAdjust unit="1" onMinus={() => setQuantity(String(Math.max(1, quantityNumber - 1)))} onPlus={() => setQuantity(String(Math.min(availableStock, (quantityNumber || 0) + 1)))} minusDisabled={quantityNumber <= 1} plusDisabled={quantityNumber >= availableStock} />
+          <Input
+            label={`Quantidade * · Estoque disponível: ${availableStock}`}
+            type="number"
+            min={1}
+            max={availableStock}
+            step={1}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            error={quantityError}
+          />
+          <QuickAdjust unit="1" onMinus={() => setQuantity(String(Math.max(1, quantityNumber - 1)))} onPlus={() => setQuantity(String(Math.min(availableStock, (quantityNumber || 0) + 1)))} minusDisabled={quantityNumber <= 1} plusDisabled={quantityNumber >= availableStock} />
         </div>
         <div>
-        <CurrencyInput
-          label="Valor da Venda (Unitário) *"
-          value={salePrice}
-          onChange={setSalePrice}
-          error={priceError}
-        />
-        <QuickAdjust unit="R$ 10" onMinus={() => setSalePrice((current) => Math.max(0.01, Math.round((current - 10) * 100) / 100))} onPlus={() => setSalePrice((current) => Math.round((current + 10) * 100) / 100)} minusDisabled={salePrice <= 0.01} />
+          <CurrencyInput
+            label="Valor da Venda (Unitário) *"
+            value={salePrice}
+            onChange={setSalePrice}
+            error={priceError}
+          />
+          <QuickAdjust unit="R$ 10" onMinus={() => setSalePrice((current) => Math.max(0.01, Math.round((current - 10) * 100) / 100))} onPlus={() => setSalePrice((current) => Math.round((current + 10) * 100) / 100)} minusDisabled={salePrice <= 0.01} />
         </div>
       </div>
 

@@ -45,6 +45,82 @@
   background-color: var(--color-bg-brand-subtle);
 }
 
-@media(max-width:700px){
-  .table-ds__container{overflow:visible}.table-ds,.table-ds tbody,.table-ds tr,.table-ds td{display:block;width:100%}.table-ds{border:0;background:transparent;overflow:visible}.table-ds thead{display:none}.table-ds tbody{display:grid;gap:12px}.table-ds tr{padding:14px;border:1px solid var(--color-border-default);border-radius:12px;background:var(--color-bg-surface);box-shadow:var(--shadow-sm)}.table-ds td,.table-ds tbody tr:first-child td{border:0;padding:7px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0;overflow-wrap:anywhere}.table-ds td::before{content:attr(data-label);font-size:12px;font-weight:600;color:var(--color-text-tertiary);flex:0 0 42%}.table-ds tbody tr td:last-child{padding-top:12px;border-top:1px solid var(--color-border-default);justify-content:flex-end}.table-ds td:last-child::before{display:none}.table-ds__actions{flex-wrap:wrap}.table-ds td .input-ds__field{min-width:0;width:100%}.table-ds__row--editing td{background:transparent}
+@media(max-width:700px) {
+  .table-ds__container {
+    overflow: visible
+  }
+
+  .table-ds,
+  .table-ds tbody,
+  .table-ds tr,
+  .table-ds td {
+    display: block;
+    width: 100%
+  }
+
+  .table-ds {
+    border: 0;
+    background: transparent;
+    overflow: visible
+  }
+
+  .table-ds thead {
+    display: none
+  }
+
+  .table-ds tbody {
+    display: grid;
+    gap: 12px
+  }
+
+  .table-ds tr {
+    padding: 14px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-sm)
+  }
+
+  .table-ds td,
+  .table-ds tbody tr:first-child td {
+    border: 0;
+    padding: 7px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    overflow-wrap: anywhere
+  }
+
+  .table-ds td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    flex: 0 0 42%
+  }
+
+  .table-ds tbody tr td:last-child {
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-default);
+    justify-content: flex-end
+  }
+
+  .table-ds td:last-child::before {
+    display: none
+  }
+
+  .table-ds__actions {
+    flex-wrap: wrap
+  }
+
+  .table-ds td .input-ds__field {
+    min-width: 0;
+    width: 100%
+  }
+
+  .table-ds__row--editing td {
+    background: transparent
+  }
 }

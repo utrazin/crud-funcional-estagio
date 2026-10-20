@@ -18,7 +18,7 @@
   text-align: left;
 }
 
-.checkbox-ms__trigger > span:first-child {
+.checkbox-ms__trigger>span:first-child {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

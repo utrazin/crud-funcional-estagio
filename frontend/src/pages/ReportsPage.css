@@ -23,4 +23,25 @@
     align-items: stretch;
   }
 }
-@media(max-width:700px){.reports-page__filters-left{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px}.reports-page__filters-left>.input-ds__field{width:100%!important}.reports-page__filters-left>.checkbox-ms{grid-column:1 / -1;width:100%!important}.reports-page__filters>.btn-ds{width:100%}}
+
+@media(max-width:700px) {
+  .reports-page__filters-left {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 8px
+  }
+
+  .reports-page__filters-left>.input-ds__field {
+    width: 100% !important
+  }
+
+  .reports-page__filters-left>.checkbox-ms {
+    grid-column: 1 / -1;
+    width: 100% !important
+  }
+
+  .reports-page__filters>.btn-ds {
+    width: 100%
+  }
+}

@@ -25,7 +25,7 @@ router.post('/login', async (req: Request, res: Response) => {
   } catch (err: any) {
     const status = err.message === 'Credenciais inválidas' ? 401
       : err.message.includes('obrigatório') ? 400
-      : 500
+        : 500
     res.status(status).json({ error: err.message || 'Erro ao autenticar' })
   }
 })

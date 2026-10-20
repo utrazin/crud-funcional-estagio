@@ -1,1 +1,43 @@
-.skeleton-layout{display:grid;gap:20px;width:100%}.skeleton-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}.skeleton-box{border-radius:10px;background:linear-gradient(90deg,var(--gray-100) 20%,var(--gray-50) 50%,var(--gray-100) 80%);background-size:200% 100%;animation:skeleton-shimmer 1.5s infinite}.skeleton-metric{height:100px}.skeleton-list{display:grid;gap:8px}.skeleton-row{height:60px}@keyframes skeleton-shimmer{to{background-position-x:-200%}}@media(max-width:700px){.skeleton-row{height:110px}}
+.skeleton-layout {
+    display: grid;
+    gap: 20px;
+    width: 100%
+}
+
+.skeleton-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px
+}
+
+.skeleton-box {
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--gray-100) 20%, var(--gray-50) 50%, var(--gray-100) 80%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite
+}
+
+.skeleton-metric {
+    height: 100px
+}
+
+.skeleton-list {
+    display: grid;
+    gap: 8px
+}
+
+.skeleton-row {
+    height: 60px
+}
+
+@keyframes skeleton-shimmer {
+    to {
+        background-position-x: -200%
+    }
+}
+
+@media(max-width:700px) {
+    .skeleton-row {
+        height: 110px
+    }
+}

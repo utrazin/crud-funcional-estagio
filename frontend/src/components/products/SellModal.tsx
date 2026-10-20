@@ -12,7 +12,7 @@ import './SellModal.css'
 
 interface Props { product: Product | null; onClose: () => void; onSold: () => void; onError: (message: string) => void }
 const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` }
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
 export function SellModal({ product, onClose, onSold, onError }: Props) {
   const [quantity, setQuantity] = useState('1')
   const [salePrice, setSalePrice] = useState(0)

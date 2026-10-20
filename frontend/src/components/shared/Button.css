@@ -40,6 +40,7 @@
   background-color: var(--color-bg-brand);
   color: var(--color-text-on-brand);
 }
+
 .btn-ds--primary:hover:not(:disabled) {
   background-color: var(--color-bg-brand-hover);
 }
@@ -49,6 +50,7 @@
   color: var(--color-text-primary);
   border-color: var(--color-border-default);
 }
+
 .btn-ds--secondary:hover:not(:disabled) {
   background-color: var(--color-bg-surface-secondary);
 }
@@ -57,6 +59,7 @@
   background-color: var(--color-bg-danger-solid);
   color: var(--color-text-on-brand);
 }
+
 .btn-ds--danger:hover:not(:disabled) {
   opacity: 0.9;
 }
@@ -65,6 +68,7 @@
   background-color: var(--green-500);
   color: var(--color-text-on-brand);
 }
+
 .btn-ds--success:hover:not(:disabled) {
   background-color: var(--green-600);
 }
@@ -73,6 +77,7 @@
   background-color: transparent;
   color: var(--color-text-secondary);
 }
+
 .btn-ds--ghost:hover:not(:disabled) {
   background-color: var(--color-bg-surface-secondary);
 }

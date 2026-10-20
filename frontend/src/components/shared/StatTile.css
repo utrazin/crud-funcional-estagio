@@ -34,6 +34,7 @@
   border-color: var(--color-border-focus);
   color: var(--color-text-link);
 }
+
 .stat-tile-ds--blue .stat-tile-ds__value {
   color: var(--blue-700);
 }
@@ -43,6 +44,7 @@
   border-color: var(--green-500);
   color: var(--color-text-success);
 }
+
 .stat-tile-ds--green .stat-tile-ds__value {
   color: var(--green-600);
 }
