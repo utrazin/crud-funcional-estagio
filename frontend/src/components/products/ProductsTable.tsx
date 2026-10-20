@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { currency } from '../../utils/format'
 import type { Product } from '../../types'
 import { IconButton } from '../shared/IconButton'
 import { Button } from '../shared/Button'
@@ -6,7 +7,6 @@ import { PencilIcon, EyeIcon, TrashIcon } from '../shared/icons'
 import '../../styles/table.css'
 
 interface Props { products: Product[]; onRequestEdit: (product: Product) => void; onRequestDelete: (product: Product) => void; onRequestSell: (product: Product) => void }
-const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function ProductsTable({ products, onRequestEdit, onRequestDelete, onRequestSell }: Props) {
   const navigate = useNavigate()
   return <div className="table-ds__container"><table className="table-ds"><thead><tr><th>Nome do Produto</th><th>Quantidade</th><th>Preço</th><th>Ações</th></tr></thead><tbody>{products.map((product) => <tr key={product.id}>

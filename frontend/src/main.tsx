@@ -9,13 +9,19 @@ import './styles/typography.css'
 import './styles/reset.css'
 import { App } from './App'
 import { AuthProvider } from './auth/AuthContext'
+import { ToastProvider } from './components/shared/ToastProvider'
+import { ThemeProvider } from './components/shared/ThemeProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 )

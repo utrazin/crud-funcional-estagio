@@ -94,3 +94,33 @@
   /* ==== Tipografia ==== */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --gray-25: #101722;
+  --gray-50: #202b3b;
+  --gray-100: #2a3749;
+  --gray-200: #3c4b60;
+  --gray-300: #596a80;
+  --gray-400: #a7b5c8;
+  --gray-500: #9aabc0;
+  --gray-600: #c3cfde;
+  --gray-900: #eef3fa;
+  --blue-50: #1b3459;
+  --blue-600: #3477ec;
+  --blue-700: #2563d4;
+  --green-50: #153c2b;
+  --green-600: #15803d;
+  --green-700: #80edb1;
+  --red-50: #482525;
+  --red-600: #ff8888;
+  --amber-50: #48391b;
+  --amber-700: #ffd285;
+  --color-bg-surface: #192333;
+  --color-bg-danger-solid: #b73b3b;
+  --color-text-link: #8bb8ff;
+  --color-text-disabled: #8292a6;
+  --color-text-on-brand: #fff;
+  --color-icon-brand: #8bb8ff;
+  --shadow-modal: 0 12px 36px rgba(0, 0, 0, .4);
+}

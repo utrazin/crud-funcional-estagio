@@ -6,6 +6,7 @@ import { DeleteClientModal } from '../clients/DeleteClientModal'
 import { PersonIcon, TrashIcon } from '../shared/icons'
 import { IconButton } from '../shared/IconButton'
 import { Skeleton } from '../shared/Skeleton'
+import { useToast } from '../shared/useToast'
 import './ClientAutocomplete.css'
 
 interface Props { value: string; onChange: (value: string) => void; onSelect: (client: Client | null) => void; error?: string; layout?: 'side' | 'field' }
@@ -15,6 +16,7 @@ function loadClientsOnce() {
   return pendingClients
 }
 export function ClientAutocomplete({ value, onChange, onSelect, error, layout = 'field' }: Props) {
+  const { showSuccess, showError } = useToast()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
@@ -23,7 +25,7 @@ export function ClientAutocomplete({ value, onChange, onSelect, error, layout = 
   const [message, setMessage] = useState('')
   useEffect(() => {
     let active = true
-    loadClientsOnce().then((result) => { if (active) setClients(result) }).catch(() => { if (active) setMessage('Não foi possível carregar clientes') }).finally(() => { if (active) setLoading(false) })
+    loadClientsOnce().then((result) => { if (active) setClients(result) }).catch(() => { if (active) { setMessage('Não foi possível carregar clientes'); showError('Não foi possível carregar clientes.') } }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [])
   const matches = useMemo(() => layout === 'side' && !open ? clients : clients.filter((client) => client.name.toLocaleLowerCase('pt-BR').includes(value.toLocaleLowerCase('pt-BR'))), [clients, value, layout, open])
@@ -36,6 +38,6 @@ export function ClientAutocomplete({ value, onChange, onSelect, error, layout = 
       {layout === 'side' ? mobileOpen && <div className="client-picker__mobile-list">{list}</div> : open && value && <div className="client-picker__dropdown">{list}</div>}
       {message && <p role="alert" className="client-picker__error">{message}</p>}
     </div>
-    <DeleteClientModal client={deleting} onClose={() => setDeleting(null)} onDeleted={() => { setClients((previous) => previous.filter((client) => client.id !== deleting?.id)); if (deleting?.name === value) { onChange(''); onSelect(null) } }} onError={setMessage} />
+    <DeleteClientModal client={deleting} onClose={() => setDeleting(null)} onDeleted={() => { setClients((previous) => previous.filter((client) => client.id !== deleting?.id)); if (deleting?.name === value) { onChange(''); onSelect(null) }; showSuccess('Cliente excluído com sucesso!') }} onError={showError} />
   </div>
 }

@@ -92,6 +92,28 @@
     border-radius: 8px
 }
 
+.sidebar-ds__theme {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 34px;
+    padding: 7px;
+    color: var(--navy-nav-default-text);
+    border-radius: 8px;
+    font-size: 20px;
+    line-height: 20px
+}
+
+.sidebar-ds__theme:hover {
+    color: white;
+    background: var(--navy-800)
+}
+
+.sidebar-ds__theme span {
+    display: none
+}
+
 .sidebar-ds__logout svg {
     width: 18px;
     height: 18px
@@ -185,5 +207,18 @@
     .sidebar-ds__logout svg {
         width: 20px;
         height: 20px
+    }
+
+    .sidebar-ds__theme {
+        flex-direction: column;
+        gap: 2px;
+        padding: 5px 4px;
+        min-width: 38px
+    }
+
+    .sidebar-ds__theme span {
+        display: block;
+        font-size: 10px;
+        line-height: 13px
     }
 }

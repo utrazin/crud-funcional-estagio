@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { currency } from '../../utils/format'
 import type { Product } from '../../types'
 import { Modal } from '../shared/Modal'
 import { Button } from '../shared/Button'
@@ -6,7 +7,6 @@ import { ReadOnlyFields } from '../shared/ReadOnlyFields'
 import { productsApi } from '../../api/products'
 
 interface Props { product: Product | null; onClose: () => void; onDeleted: () => void; onError: (message: string) => void }
-const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export function DeleteProductModal({ product, onClose, onDeleted, onError }: Props) {
   const [submitting, setSubmitting] = useState(false)
   if (!product) return null

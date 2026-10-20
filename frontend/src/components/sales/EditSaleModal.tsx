@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { currency } from '../../utils/format'
 import type { Sale, Client } from '../../types'
 import { salesApi } from '../../api/sales'
 import { Modal } from '../shared/Modal'
@@ -6,6 +7,7 @@ import { Button } from '../shared/Button'
 import { Input } from '../shared/Input'
 import { CurrencyInput } from '../shared/CurrencyInput'
 import { QuickAdjust } from '../shared/QuickAdjust'
+import { SaleQuantityInput } from '../shared/SaleQuantityInput'
 import { ClientAutocomplete } from '../products/ClientAutocomplete'
 import { validateSaleQuantity, validatePrice, validateClientName, validateSaleDate } from '../../utils/validators'
 
@@ -16,8 +18,6 @@ interface EditSaleModalProps {
   onError: (message: string) => void
 }
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Extrai "YYYY-MM-DD" no fuso local (não via slice do ISO em UTC, que pode
 // mostrar o dia errado perto da meia-noite em fusos negativos como o do Brasil).
@@ -118,19 +118,7 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
       </div>
 
       <div className="modal-field-row">
-        <div>
-          <Input
-            label={`Quantidade * · Estoque disponível: ${availableStock}`}
-            type="number"
-            min={1}
-            max={availableStock}
-            step={1}
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            error={quantityError}
-          />
-          <QuickAdjust unit="1" onMinus={() => setQuantity(String(Math.max(1, quantityNumber - 1)))} onPlus={() => setQuantity(String(Math.min(availableStock, (quantityNumber || 0) + 1)))} minusDisabled={quantityNumber <= 1} plusDisabled={quantityNumber >= availableStock} />
-        </div>
+        <SaleQuantityInput value={quantity} stock={availableStock} onChange={setQuantity} error={quantityError} />
         <div>
           <CurrencyInput
             label="Valor da Venda (Unitário) *"
@@ -169,7 +157,7 @@ export function EditSaleModal({ sale, onClose, onSaved, onError }: EditSaleModal
         }}
       >
         <span className="text-body-medium" style={{ color: 'var(--color-text-success)' }}>Valor Total</span>
-        <span className="text-numeric-large" style={{ color: 'var(--green-600)' }}>{currency(total)}</span>
+        <span className="text-numeric-large" style={{ color: 'var(--color-text-success)' }}>{currency(total)}</span>
       </div>
     </Modal>
   )

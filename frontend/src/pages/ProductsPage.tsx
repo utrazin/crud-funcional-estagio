@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currency } from '../utils/format'
 import { useNavigate } from 'react-router-dom'
 import type { Product } from '../types'
 import { useProducts } from '../components/products/useProducts'
@@ -11,19 +12,16 @@ import { KpiRow } from '../components/shared/KpiRow'
 import { StatTile } from '../components/shared/StatTile'
 import { Input } from '../components/shared/Input'
 import { Button } from '../components/shared/Button'
-import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { Skeleton } from '../components/shared/Skeleton'
 import { SearchIcon, PlusIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function ProductsPage({ createOnMount = false }: { createOnMount?: boolean }) {
   const navigate = useNavigate()
   const { products, loading, reload, refreshing, error } = useProducts()
-  const { toast, showSuccess, showError, clearToast } = useToast()
+  const { showSuccess, showError } = useToast()
   const [search, setSearch] = usePersistedState('productsPage.search', '')
   const [sellingProduct, setSellingProduct] = useState<Product | null>(null)
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
@@ -40,15 +38,13 @@ export function ProductsPage({ createOnMount = false }: { createOnMount?: boolea
   const quantidadeEmEstoque = products.reduce((sum, p) => sum + p.stockQuantity, 0)
   const valorTotalEmEstoque = products.reduce((sum, p) => sum + p.price * p.stockQuantity, 0)
 
-  function handleReload() {
+  function handleReload(message: string) {
     reload()
-    showSuccess('Operação realizada com sucesso!')
+    showSuccess(message)
   }
 
   return (
     <>
-      <Toast message={toast.message} type={toast.type} onClear={clearToast} />
-
       <PageHeader
         title="Produtos"
         actions={
@@ -89,15 +85,15 @@ export function ProductsPage({ createOnMount = false }: { createOnMount?: boolea
       <SellModal
         product={sellingProduct}
         onClose={() => setSellingProduct(null)}
-        onSold={handleReload}
+        onSold={() => handleReload('Venda registrada com sucesso!')}
         onError={showError}
       />
-      <ProductFormModal open={creating || !!editingProduct} product={editingProduct} onClose={() => { setCreating(false); setEditingProduct(null); if (createOnMount) navigate('/produtos') }} onSaved={handleReload} onError={showError} />
+      <ProductFormModal open={creating || !!editingProduct} product={editingProduct} onClose={() => { setCreating(false); setEditingProduct(null); if (createOnMount) navigate('/produtos') }} onSaved={() => handleReload(editingProduct ? 'Produto atualizado com sucesso!' : 'Produto criado com sucesso!')} onError={showError} />
 
       <DeleteProductModal
         product={deletingProduct}
         onClose={() => setDeletingProduct(null)}
-        onDeleted={handleReload}
+        onDeleted={() => handleReload('Produto excluído com sucesso!')}
         onError={showError}
       />
     </>

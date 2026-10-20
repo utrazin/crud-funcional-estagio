@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currency } from '../utils/format'
 import type { Sale } from '../types'
 import { useSales } from '../components/sales/useSales'
 import { EditSaleModal } from '../components/sales/EditSaleModal'
@@ -8,19 +9,16 @@ import { StatTile } from '../components/shared/StatTile'
 import { Input } from '../components/shared/Input'
 import { IconButton } from '../components/shared/IconButton'
 import { CancelSaleModal } from '../components/shared/CancelSaleModal'
-import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { Skeleton } from '../components/shared/Skeleton'
 import { SearchIcon, PencilIcon, XIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 import '../styles/table.css'
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function VendasPage() {
   const { sales, loading, reload, refreshing, error } = useSales()
-  const { toast, showSuccess, showError, clearToast } = useToast()
+  const { showSuccess, showError } = useToast()
   const [search, setSearch] = usePersistedState('vendasPage.search', '')
   const [editingSale, setEditingSale] = useState<Sale | null>(null)
   const [cancelingSale, setCancelingSale] = useState<{ id: string; fields: { label: string; value: string }[] } | null>(null)
@@ -40,8 +38,6 @@ export function VendasPage() {
 
   return (
     <>
-      <Toast message={toast.message} type={toast.type} onClear={clearToast} />
-
       <PageHeader
         title="Vendas"
         actions={

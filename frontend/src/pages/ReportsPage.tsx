@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { currency } from '../utils/format'
 import type { Sale, Product, Client } from '../types'
 import { reportsApi } from '../api/reports'
 import { productsApi } from '../api/products'
@@ -11,7 +12,6 @@ import { CheckboxMultiSelect } from '../components/shared/CheckboxMultiSelect'
 import { Button } from '../components/shared/Button'
 import { IconButton } from '../components/shared/IconButton'
 import { CancelSaleModal } from '../components/shared/CancelSaleModal'
-import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { Skeleton } from '../components/shared/Skeleton'
 import { UploadIcon, DownloadIcon, XIcon } from '../components/shared/icons'
@@ -20,8 +20,6 @@ import { validateSaleDate } from '../utils/validators'
 import '../styles/table.css'
 import './ReportsPage.css'
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 function firstDayOfMonth() {
   const d = new Date()
@@ -33,7 +31,7 @@ function today() {
 }
 
 export function ReportsPage() {
-  const { toast, showSuccess, showError, clearToast } = useToast()
+  const { showSuccess, showError } = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [from, setFrom] = usePersistedState('reportsPage.from', firstDayOfMonth())
@@ -60,7 +58,7 @@ export function ReportsPage() {
   const filters = { from, to, productIds, clientIds }
   const filterError = (from && validateSaleDate(from)) || (to && validateSaleDate(to)) || (from && to && from > to ? 'A data inicial deve ser anterior à final' : '')
 
-  async function loadData() {
+  async function loadData(notify = false) {
     if (filterError) { showError(filterError); return }
     setRefreshing(true)
     try {
@@ -71,6 +69,7 @@ export function ReportsPage() {
       setSales(salesData)
       setSummary(summaryData)
       sessionStorage.setItem(reportCacheKey, JSON.stringify({ sales: salesData, summary: summaryData }))
+      if (notify) showSuccess('Relatório atualizado com sucesso!')
     } catch (err) {
       showError(err instanceof Error ? err.message : 'Erro ao carregar relatório')
     } finally {
@@ -80,15 +79,17 @@ export function ReportsPage() {
   }
 
   useEffect(() => {
-    productsApi.listar().then(setProducts).catch(() => setProducts([]))
-    clientsApi.listar().then(setClients).catch(() => setClients([]))
+    productsApi.listar().then(setProducts).catch(() => { setProducts([]); showError('Não foi possível carregar produtos para o filtro.') })
+    clientsApi.listar().then(setClients).catch(() => { setClients([]); showError('Não foi possível carregar clientes para o filtro.') })
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleExport() {
-    if (filterError) return
-    window.open(reportsApi.exportarUrl(filters), '_blank')
+    if (filterError) { showError(filterError); return }
+    const opened = window.open(reportsApi.exportarUrl(filters), '_blank')
+    if (opened) showSuccess('Exportação iniciada.')
+    else showError('O navegador bloqueou a exportação. Permita pop-ups e tente novamente.')
   }
 
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -113,8 +114,6 @@ export function ReportsPage() {
 
   return (
     <>
-      <Toast message={toast.message} type={toast.type} onClear={clearToast} />
-
       <PageHeader
         title="Relatórios Financeiros"
         actions={
@@ -156,7 +155,7 @@ export function ReportsPage() {
             style={{ width: 220 }}
           />
         </div>
-        <Button onClick={loadData} loading={refreshing} disabled={!!filterError}>Atualizar</Button>
+        <Button onClick={() => void loadData(true)} loading={refreshing} disabled={!!filterError}>Atualizar</Button>
       </div>
 
       {filterError && <p role="alert" style={{ color: 'var(--color-text-danger)' }}>{filterError}</p>}

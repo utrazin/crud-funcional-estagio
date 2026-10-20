@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currency } from '../utils/format'
 import { useClients } from '../components/clients/useClients'
 import { ClientTable } from '../components/clients/ClientTable'
 import { CreateClientModal } from '../components/clients/CreateClientModal'
@@ -7,18 +8,15 @@ import { KpiRow } from '../components/shared/KpiRow'
 import { StatTile } from '../components/shared/StatTile'
 import { Input } from '../components/shared/Input'
 import { Button } from '../components/shared/Button'
-import { Toast } from '../components/shared/Toast'
 import { useToast } from '../components/shared/useToast'
 import { Skeleton } from '../components/shared/Skeleton'
 import { SearchIcon, PlusIcon } from '../components/shared/icons'
 import { usePersistedState } from '../utils/usePersistedState'
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function ClientsPage() {
   const { clients, loading, reload, refreshing, error } = useClients()
-  const { toast, showSuccess, showError, clearToast } = useToast()
+  const { showSuccess, showError } = useToast()
   const [search, setSearch] = usePersistedState('clientsPage.search', '')
   const [createOpen, setCreateOpen] = useState(false)
 
@@ -34,13 +32,11 @@ export function ClientsPage() {
 
   function handleReload() {
     reload()
-    showSuccess('Operação realizada com sucesso!')
+    showSuccess('Cliente criado com sucesso!')
   }
 
   return (
     <>
-      <Toast message={toast.message} type={toast.type} onClear={clearToast} />
-
       <PageHeader
         title="Clientes"
         actions={

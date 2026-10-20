@@ -5,11 +5,13 @@ import { useAuth } from '../auth/AuthContext'
 import { Button } from '../components/shared/Button'
 import { Input } from '../components/shared/Input'
 import { BoxIcon, PersonIcon, LockIcon } from '../components/shared/icons'
+import { useToast } from '../components/shared/useToast'
 import './LoginPage.css'
 
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { showSuccess, showError } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,9 +23,12 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password)
+      showSuccess('Login realizado com sucesso!')
       navigate('/produtos')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao autenticar')
+      const message = err instanceof Error ? err.message : 'Erro ao autenticar'
+      setError(message)
+      showError(message)
     } finally {
       setSubmitting(false)
     }

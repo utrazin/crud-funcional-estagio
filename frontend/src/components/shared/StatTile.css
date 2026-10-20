@@ -48,3 +48,11 @@
 .stat-tile-ds--green .stat-tile-ds__value {
   color: var(--green-600);
 }
+
+[data-theme='dark'] .stat-tile-ds--blue .stat-tile-ds__value {
+  color: var(--color-text-link);
+}
+
+[data-theme='dark'] .stat-tile-ds--green .stat-tile-ds__value {
+  color: var(--color-text-success);
+}

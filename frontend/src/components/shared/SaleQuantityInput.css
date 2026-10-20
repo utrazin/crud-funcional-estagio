@@ -1,0 +1,16 @@
+.sale-quantity-input__below {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sale-quantity-input__below span {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.sale-quantity-input__below .quick-adjust {
+  margin-top: 0;
+}

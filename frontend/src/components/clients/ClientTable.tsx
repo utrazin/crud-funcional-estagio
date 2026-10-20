@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { currency } from '../../utils/format'
 import type { Client } from '../../types'
 import { IconButton } from '../shared/IconButton'
 import { EyeIcon } from '../shared/icons'
@@ -8,8 +9,6 @@ interface ClientTableProps {
   clients: Client[]
 }
 
-const currency = (value: number) =>
-  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function ClientTable({ clients }: ClientTableProps) {
   const navigate = useNavigate()

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { currency } from '../../utils/format'
 import type { Product, Client } from '../../types'
 import { salesApi } from '../../api/sales'
 import { Modal } from '../shared/Modal'
@@ -6,12 +7,12 @@ import { Button } from '../shared/Button'
 import { Input } from '../shared/Input'
 import { CurrencyInput } from '../shared/CurrencyInput'
 import { QuickAdjust } from '../shared/QuickAdjust'
+import { SaleQuantityInput } from '../shared/SaleQuantityInput'
 import { ClientAutocomplete } from './ClientAutocomplete'
 import { validateSaleQuantity, validatePrice, validateClientName, validateSaleDate } from '../../utils/validators'
 import './SellModal.css'
 
 interface Props { product: Product | null; onClose: () => void; onSold: () => void; onError: (message: string) => void }
-const currency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
 export function SellModal({ product, onClose, onSold, onError }: Props) {
   const [quantity, setQuantity] = useState('1')
@@ -45,7 +46,7 @@ export function SellModal({ product, onClose, onSold, onError }: Props) {
     <div className="sale-modal-grid">
       <ClientAutocomplete value={buyerName} onChange={setBuyerName} onSelect={setSelectedClient} error={buyerName ? buyerError : undefined} layout="side" />
       <div className="modal-field-row"><Input label="Produto" value={product.name} disabled readOnly /><Input label="Custo unitário" value={currency(product.price)} disabled readOnly /></div>
-      <div className="modal-field-row"><div className="sale-modal-quantity"><Input label={`Quantidade * · Estoque disponível: ${available}`} type="number" min={1} max={Math.max(1, available)} step={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} error={quantityError} disabled={available === 0} /><QuickAdjust unit="1" onMinus={() => setQuantity(String(Math.max(1, quantityNumber - 1)))} onPlus={() => setQuantity(String(Math.min(available, (quantityNumber || 0) + 1)))} minusDisabled={quantityNumber <= 1 || available === 0} plusDisabled={quantityNumber >= available || available === 0} /></div><div><CurrencyInput label="Valor da Venda (Unitário) *" value={salePrice} onChange={setSalePrice} error={priceError} /><QuickAdjust unit="R$ 10" onMinus={() => setSalePrice((current) => Math.max(0.01, Math.round((current - 10) * 100) / 100))} onPlus={() => setSalePrice((current) => Math.round((current + 10) * 100) / 100)} minusDisabled={salePrice <= 0.01} /></div></div>
+      <div className="modal-field-row"><SaleQuantityInput value={quantity} stock={available} onChange={setQuantity} error={quantityError} /><div><CurrencyInput label="Valor da Venda (Unitário) *" value={salePrice} onChange={setSalePrice} error={priceError} /><QuickAdjust unit="R$ 10" onMinus={() => setSalePrice((current) => Math.max(0.01, Math.round((current - 10) * 100) / 100))} onPlus={() => setSalePrice((current) => Math.round((current + 10) * 100) / 100)} minusDisabled={salePrice <= 0.01} /></div></div>
       <Input label="Data da Venda *" type="date" value={saleDate} onChange={(e) => setSaleDate(e.target.value)} error={dateError} />
       <div className="sale-modal-total"><span>Valor Total</span><strong>{currency((Number.isFinite(quantityNumber) ? quantityNumber : 0) * salePrice)}</strong></div>
     </div>
